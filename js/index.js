@@ -1,1 +1,1 @@
-import API from "./API.js";
+import API from "./components/API.js";
