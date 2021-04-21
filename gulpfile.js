@@ -6,21 +6,18 @@ let paths = {
     build: {
         html: "./index.html",
         css: project_folder + "/css/",
-        js: project_folder + "/js/",
         img: project_folder + "/img/",
         fonts: project_folder + "/fonts/",
     },
     src: {
         html: "./index.html",
         scss: source_folder + "/**/*.scss",
-        js: source_folder + "/**/*.js",
         img: source_folder + "/**/*.{jpg,png,svg,gif,ico,webp}",
         fonts: source_folder + "/fonts/**/*.{ttf,eot,svg,woff,woff2}",
     },
     watch: {
         html: "./index.html",
         scss: source_folder + "/**/*.scss",
-        js: source_folder + "/**/*.js",
         img: source_folder + "/**/*.{jpg,png,svg,gif,ico,webp}",
     },
     clean: project_folder
@@ -34,7 +31,6 @@ let {src, dest} = require('gulp'),
     scss = require('gulp-sass'),
     autoprefixer = require('gulp-autoprefixer'),
     cleancss = require('gulp-clean-css'),
-    uglify = require('gulp-uglify'),
     imagemin = require('gulp-imagemin');
 
 
@@ -60,7 +56,7 @@ function css() {
             })
         )
         .pipe(scss().on("error", scss.logError))
-        .pipe(concat("style.min.css"))
+        .pipe(concat("index.min.css"))
         .pipe(
             autoprefixer({
                 overrideBrowserslist: ["last 5 versions"],
@@ -72,13 +68,6 @@ function css() {
         .pipe(browsersync.stream())
 }
 
-function js() {
-    return src(paths.src.js, {allowEmpty: true})
-        .pipe(uglify())
-        .pipe(concat("script.min.js"))
-        .pipe(dest(paths.build.js))
-        .pipe(browsersync.stream())
-}
 
 function images() {
     return src(paths.src.img)
@@ -98,7 +87,7 @@ function images() {
         .pipe(browsersync.stream())
 }
 
-let build = gulp.series(js, css);
+let build = gulp.series(css);
 
 function browserSync() {
     browsersync.init({
@@ -109,7 +98,6 @@ function browserSync() {
         notify: false
     })
     gulp.watch(paths.src.scss, css).on("change", browsersync.reload)
-    gulp.watch(paths.src.js, js).on("change", browsersync.reload)
     gulp.watch(paths.src.img, images).on("change", browsersync.reload)
     gulp.watch(paths.src.html, build).on("change", browsersync.reload)
 
