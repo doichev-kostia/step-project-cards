@@ -16,20 +16,22 @@ export default class Form{
             elements.form.classList.add(classList)
         }
         parent.append(elements.form);
+        return elements.form
     }
 
     createInput(placeholder,cssClass,inputType){
             const input = new Input(this.elements.form, placeholder,cssClass,inputType);
-            input.render()
+            return input.render()
+
     }
 
     createTextArea(labelTextContent, textAreaId, classListObj, attributes){
             const textArea = new TextArea(this.elements.form, labelTextContent, textAreaId, classListObj, attributes);
-            textArea.render()
+            return textArea.render()
     }
 
     createSelect(textContentArr, valueArr, classListObj, optionAttributes){
             const select = new Select(this.elements.form, textContentArr, valueArr, classListObj, optionAttributes );
-            select.render()
+            return select.render()
     }
 }

@@ -13,6 +13,20 @@ export class CreateElement{
         this.element = document.createElement(elementTag)
     }
 
+    static count(){
+        let counter = 0;
+        return function (){
+           return  counter ++
+        }
+    }
+
+    static counter = CreateElement.count()
+
+    addIdentifier(){
+        const {element} = this;
+        element.dataset.id = `${CreateElement.counter()}`
+    }
+
     render(){
         let {element, classList, textContent} = this;
         if (!(Array.isArray(classList))) {
@@ -27,8 +41,18 @@ export class CreateElement{
             element.textContent = textContent;
         }
 
+        this.addIdentifier()
+
         return element;
     }
+
+    remove(){
+        const {element, classList} = this;
+        const elements = [...document.querySelectorAll(classList)];
+        const elementToDelete = elements.find(elem =>elem.dataset.id === element.dataset.id);
+        elementToDelete.remove()
+    }
+
 }
 
 export class Select {
@@ -52,6 +76,20 @@ export class Select {
         this.elements = {
             select: document.createElement("select")
         }
+    }
+
+    static count(){
+        let counter = 0;
+        return function (){
+           return  counter ++
+        }
+    }
+
+    static counter = Select.count()
+
+    addIdentifier() {
+        const {select} = this.elements;
+        select.dataset.id = `${Select.counter()}`
     }
 
     createOptions() {
@@ -101,6 +139,7 @@ export class Select {
         this.addText()
         this.addValue()
         this.addOptionAttributes()
+        this.addIdentifier()
 
         parent.append(elements.select)
         elements.options.forEach(item => {
@@ -109,6 +148,14 @@ export class Select {
 
         return [elements.select, ...elements.options];
     }
+
+    remove(){
+        const {select} = this.elements
+        const elements = [...this.parent.children];
+        const elementToDelete = elements.find(elem =>elem.dataset.id === select.dataset.id);
+        elementToDelete.remove()
+    }
+
 }
 
 export class TextArea {
@@ -117,7 +164,7 @@ export class TextArea {
      * parent DOMElement,
      * <label> textContent,
      * id that connects <label> and <textarea>,
-     * object with classes e.g  {label: "form-label", textArea: "form-textarea"},
+     * object with classes  {label: "CSS class", textArea: "CSS class"},
      * object with attributes
      *
      * @returns  array with created elements and append elements on the page
@@ -132,6 +179,20 @@ export class TextArea {
             label: document.createElement("label"),
             textArea: document.createElement("textarea")
         }
+    }
+
+    static count(){
+        let counter = 0;
+        return function (){
+           return  counter ++
+        }
+    }
+
+    static counter = TextArea.count()
+
+    addIdentifier(){
+        const {label} = this.elements;
+        label.dataset.id = `${TextArea.counter()}`
     }
 
     addLabel() {
@@ -164,11 +225,20 @@ export class TextArea {
         this.addName()
         this.addStyles()
         this.addAttributes()
+        this.addIdentifier()
 
         parent.append(elements.label)
         elements.label.append(elements.textArea)
         return [elements.label, elements.textArea];
     }
+
+    remove(){
+        const {label} = this.elements
+        const elements = [...this.parent.children];
+        const elementToDelete = elements.find(elem =>elem.dataset.id === button.dataset.id);
+        elementToDelete.remove()
+    }
+
 }
 
 export class Button {
@@ -190,6 +260,15 @@ export class Button {
         }
     }
 
+    static count(){
+        let counter = 0;
+        return function (){
+            return counter ++
+        }
+    }
+
+    static counter = Button.count()
+
     addText() {
         const {button} = this.elements
         button.textContent = this.textContent
@@ -206,13 +285,26 @@ export class Button {
         })
     }
 
+    addIdentifier(){
+        const {button} = this.elements;
+        button.dataset.id = `${Button.counter()}`
+    }
+
     render() {
         const {parent} = this;
         const {button} = this.elements
         this.addText()
         this.addStyle()
+        this.addIdentifier()
         parent.append(button)
         return button
+    }
+
+    remove(){
+        const {button} = this.elements
+        const elements = [...this.parent.children];
+        const elementToDelete = elements.find(elem =>elem.dataset.id === button.dataset.id);
+        elementToDelete.remove()
     }
 }
 
@@ -227,6 +319,15 @@ export class Input {
         }
     }
 
+    static count(){
+        let counter = 0;
+        return function (){
+           return  counter ++
+        }
+    }
+
+    static counter = Input.count()
+
     addStyle(){
         const {input} = this.elements;
         input.classList.add(this.cssClass)
@@ -234,7 +335,12 @@ export class Input {
 
     addPlaceholder(){
         const {input} = this.elements;
-        input.placeholder = `${this.placeholder}`
+        input.placeholder = `${this.placeholder}`;
+    }
+
+    addIdentifier (){
+        const {input} = this.elements;
+        input.dataset.id = `${Input.counter()}`
     }
 
     addInputType(){
@@ -246,9 +352,17 @@ export class Input {
         const {input} = this.elements;
         this.addStyle()
         this.addPlaceholder()
+        this.addIdentifier()
         this.addInputType()
         this.parent.append(input)
         return input
+    }
+
+    remove(){
+        const {input} = this.elements;
+        const elements = [...this.parent.children];
+        const elementToDelete = elements.find(elem =>elem.dataset.id === input.dataset.id);
+        elementToDelete.remove()
     }
 }
 
