@@ -1,6 +1,8 @@
 import Button from "./Utils.js";
 import API from "./API.js"
 import Input from "./Input.js";
+import Form from "./Form.js";
+
 
 export default class ModalLogin{
     constructor(parent,title,btnClass) {
@@ -40,6 +42,10 @@ export default class ModalLogin{
     render(){
         const {modalWrapper,modal,crossButton,title,logInButton} = this.elements
         this.addBtnClass()
+        const form = new Form(modal)
+        form.render()
+        const emailInput = form.createInput('email','email-input','email')
+        const passwordInput = form.createInput('password','password-input','password')
         const button = logInButton.render(modal,'Вход', 'btn')
         this.addStyles()
         this.closeModal()
@@ -49,10 +55,11 @@ export default class ModalLogin{
         modal.prepend(crossButton,title)
         this.verifyUserData()
 
-        const emailInput = new Input(document.querySelector('.modal'),'email','email-input','email')
-        const passwordInput = new Input(document.querySelector('.modal'),'password','password-input','password')
-        emailInput.render()
-        passwordInput.render()
+
+
+
+        // emailInput.render()
+        // passwordInput.render()
     }
     //отрыгивает созданное на страницу
 
