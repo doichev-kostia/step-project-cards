@@ -6,6 +6,31 @@
  * textArea
  * */
 
+export class CreateElement{
+    constructor(elementTag, classListArr, textContent) {
+        this.classList = classListArr;
+        this.textContent = textContent;
+        this.element = document.createElement(elementTag)
+    }
+
+    render(){
+        let {element, classList, textContent} = this;
+        if (!(Array.isArray(classList))) {
+            classList = [...classList]
+        }
+
+        classList.forEach(CSSClass => {
+            element.classList.add(CSSClass);
+        })
+
+        if(textContent){
+            element.textContent = textContent;
+        }
+
+        return element;
+    }
+}
+
 export class Select {
     /**
      * @requires:
