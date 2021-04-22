@@ -74,9 +74,21 @@ export default class ModalLogin{
     //закрывает модальное окно по нажатию на крестик и вне области модалки
 
      verifyUserData(){
-         document.querySelector('.modal-btn').addEventListener('click', ()=>{
-            // console.log(document.que)
-             API.login({ email: 'antonmolchanov97@gmail.com', password: 'Ilona16122020' })
+         document.querySelector('.modal-btn').addEventListener('click', async ()=>{
+             console.log(document.querySelector('.email-input'))
+             console.log(document.querySelector('.password-input'))
+             const credentials = {
+                 email: document.querySelector('.email-input').value,
+                 password: document.querySelector('.password-input').value,
+             }
+             const {email,password} = credentials;
+             const {modalWrapper,modal,crossButton} = this.elements
+
+             await API.login({email,password})
+             debugger
+             if (API.token){
+                 modalWrapper.remove()
+             }
         })
     }
 
