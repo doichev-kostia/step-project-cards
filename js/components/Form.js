@@ -1,16 +1,20 @@
-import {/*Button,*/  Select/*, TextArea*/} from "./Utils.js"
-import Input from "./Input.js"
+import {Button,  Select, TextArea, Input} from "./CreateElements.js"
+
 
 export default class Form{
-    constructor(parent) {
+    constructor(parent, classList) {
         this.parent = parent;
+        this.classList = classList;
         this.elements ={
             form: document.createElement("form")
         }
     }
 
     render(){
-        const { parent, elements} = this;
+        const { parent, classList, elements} = this;
+        if(classList){
+            elements.form.classList.add(classList)
+        }
         parent.append(elements.form);
     }
 
@@ -18,29 +22,14 @@ export default class Form{
             const input = new Input(this.elements.form, placeholder,cssClass,inputType);
             input.render()
     }
-    //
-    // createTextArea(amount){
-    //         const textArea = new TextArea();
-    //         textArea.render()
-    // }
 
-    createSelect(textContentArr, valueArr, classListArr, optionAttributes){
-            const select = new Select(this.elements.form, textContentArr, valueArr, classListArr, optionAttributes );
+    createTextArea(labelTextContent, textAreaId, classListObj, attributes){
+            const textArea = new TextArea(this.elements.form, labelTextContent, textAreaId, classListObj, attributes);
+            textArea.render()
+    }
+
+    createSelect(textContentArr, valueArr, classListObj, optionAttributes){
+            const select = new Select(this.elements.form, textContentArr, valueArr, classListObj, optionAttributes );
             select.render()
     }
 }
-
-
-const form = new Form(document.querySelector("#root"))
-form.render()
-form.createSelect(
-    ["Select", "option1","option2", "option3"],
-    ["select", "option1","option2", "option3"],
-    ["form-select", "form-option"]
-)
-form.createInput("Input", "form-input", "text")
-form.createInput("Input2", "form-input", "email")
-form.createInput("Input3", "form-input", "radio")
-
-const defaultOption = document.querySelectorAll(".form-option");
-defaultOption[0].disabled = true;

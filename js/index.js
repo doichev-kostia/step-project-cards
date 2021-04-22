@@ -1,6 +1,17 @@
 import API from "./components/API.js";
 import Form from "./components/Form.js";
-import {Select} from "./components/Utils.js"
-import Button from "./components/Utils.js";
-import ModalLogin from "./components/ModalLogin.js"
-import Input from "./components/Input.js";
+import {Select, Button, TextArea, Input} from "./components/CreateElements.js"
+import {ModalLogin, ModalCreateVisit, ModalShowCard} from "./components/Modal.js"
+
+const root = document.querySelector('#root');
+
+function createLoginButton (){
+    const button = new Button(root, "Вход", ["btn", "logInBtn"]);
+    const createdButton = button.render();
+    createdButton.addEventListener("click", event =>{
+        const modal = new ModalLogin(root, 'Вход', ['modal-btn', "btn"])
+        modal.render()
+    })
+}
+
+createLoginButton()

@@ -1,0 +1,12 @@
+@import "src/scss/mixins";
+@import "src/scss/variables";
+
+.btn{
+  @include resetButtonStyles;
+  @include commonBtnText;
+  background: $buttonColor;
+  padding: .5em 1em;
+  color: $buttonTextColor;
+  border-radius: 5px;
+}
+
