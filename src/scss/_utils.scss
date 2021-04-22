@@ -1,0 +1,11 @@
+@import "mixins";
+
+.btn{
+  background: $blue;
+  color: $white;
+  width: 122.78px;
+  height: 53px;
+  border: none;
+  border-radius: 5px;
+  @include commonBtnText;
+}
