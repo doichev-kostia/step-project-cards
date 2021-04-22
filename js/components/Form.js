@@ -1,5 +1,5 @@
-import {/*Button, Input,*/ Select/*, TextArea*/} from "./Utils.js"
-
+import {/*Button,*/  Select/*, TextArea*/} from "./Utils.js"
+import Input from "./Input.js"
 
 export default class Form{
     constructor(parent) {
@@ -14,10 +14,10 @@ export default class Form{
         parent.append(elements.form);
     }
 
-    // createInput(amount){
-    //         const input = new Input();
-    //         input.render()
-    // }
+    createInput(placeholder,cssClass,inputType){
+            const input = new Input(this.elements.form, placeholder,cssClass,inputType);
+            input.render()
+    }
     //
     // createTextArea(amount){
     //         const textArea = new TextArea();
@@ -38,6 +38,9 @@ form.createSelect(
     ["select", "option1","option2", "option3"],
     ["form-select", "form-option"]
 )
+form.createInput("Input", "form-input", "text")
+form.createInput("Input2", "form-input", "email")
+form.createInput("Input3", "form-input", "radio")
 
 const defaultOption = document.querySelectorAll(".form-option");
 defaultOption[0].disabled = true;

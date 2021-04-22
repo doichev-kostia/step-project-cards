@@ -1,6 +1,6 @@
 import Button from "./Utils.js";
 import API from "./API.js"
-import Input from "./input.js";
+import Input from "./Input.js";
 
 export default class ModalLogin{
     constructor(parent,title,btnClass) {
