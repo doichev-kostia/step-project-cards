@@ -11,7 +11,7 @@ export default class API {
     static async login(userData) {
         /**
          * @requires object with user's data like: { email: 'your@email.com', password: 'password' }
-         * @return string with token
+         * @returns string with token
          */
         return await fetch(`${API.URL}/login`, {
             method: "POST",
