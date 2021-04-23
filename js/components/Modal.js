@@ -1,6 +1,7 @@
 import {Select, Button, TextArea, Input} from "./CreateElements.js"
 import API from "./API.js"
 import Form from "./Form.js";
+import {visitTest} from "../sections/header.js";
 
 export class Modal {
     constructor(parent, text, CSSClass) {
@@ -91,6 +92,8 @@ export class ModalLogin extends Modal{
             if (API.token){
                 modalWrapper.remove()
             }
+
+            await visitTest()
         })
     }
 

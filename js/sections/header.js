@@ -1,5 +1,6 @@
 import API from "../components/API.js";
 import Form from "../components/Form.js";
+import {Visit, VisitCardiologist, VisitDentist, VisitTherapist} from "../components/Visit.js";
 import {Select, Button, TextArea, Input, CreateElement} from "../components/CreateElements.js"
 import {ModalLogin, ModalCreateVisit, ModalShowCard} from "../components/Modal.js"
 
@@ -169,8 +170,20 @@ export default function createHeaderSection() {
         }
     }
 
-    test()
+    // test()
+
 }
 
 createHeaderSection()
 
+export async function visitTest(parent){
+
+    const visit = await new VisitDentist(parent, {
+        doctor: "cardiologist",
+        fullName: "Gogi Doe",
+        priority: "medium",
+        reason: "Any text",
+        description: "Anything"
+    })
+    visit.createCard()
+}

@@ -4,7 +4,7 @@ export default class API {
     static getHeaders() {
         return {
             'content-type': 'application/json',
-            'Authorization': `Bearer ${API.token}`
+            'Authorization': `Bearer ${API.token || localStorage.token}`
         }
     }
 
@@ -26,6 +26,7 @@ export default class API {
 
     static saveToken(tokenFromResponse) {
         API.token = tokenFromResponse;
+        localStorage.setItem("token",tokenFromResponse)
     }
 
     static async saveCard(cardToSave) {
@@ -41,7 +42,7 @@ export default class API {
             .then(response => response.json())
     }
 
-    static async editCard(cardId, cardToEdit) {
+    static async editCard(cardId, editedCard) {
         /**
          * @requires id of the object that needs to be edited
          * and the object that will be put instead of an old one
@@ -50,7 +51,7 @@ export default class API {
         return await fetch(`${API.URL}/${cardId}`, {
             method: 'PUT',
             headers: API.getHeaders(),
-            body: JSON.stringify(cardToEdit)
+            body: JSON.stringify(editedCard)
         })
             .then(response => response.json())
     }
@@ -63,7 +64,7 @@ export default class API {
         return await fetch(`${API.URL}/${cardId}`, {
             method: "DELETE",
             headers: {
-                'Authorization': `Bearer ${API.token}`
+                'Authorization': `Bearer ${API.token || localStorage.token}`
             }
         })
     }
@@ -76,7 +77,7 @@ export default class API {
         return await fetch(`${API.URL}/${cardId}`, {
             method: "GET",
             headers: {
-                'Authorization': `Bearer ${API.token}`
+                'Authorization': `Bearer ${API.token || localStorage.token}`
             }
         })
             .then(response => response.json())
@@ -87,11 +88,10 @@ export default class API {
         return await fetch(`${API.URL}`, {
             method: "GET",
             headers: {
-                'Authorization': `Bearer ${API.token}`
+                'Authorization': `Bearer ${API.token || localStorage.token}`
             }
         })
             .then(response => response.json())
-            .then(data => console.log(data))
     }
 }
 

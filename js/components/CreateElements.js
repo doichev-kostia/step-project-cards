@@ -326,10 +326,10 @@ export class Button {
 }
 
 export class Input {
-    constructor(parent,placeholder,cssClass,inputType) {
+    constructor(parent,placeholder,cssClassArr,inputType) {
         this.parent = parent;
         this.placeholder = placeholder;
-        this.cssClass = cssClass;
+        this.cssClassArr = cssClassArr;
         this.inputType = inputType;
         this.elements = {
             input: document.createElement('input')
@@ -347,7 +347,11 @@ export class Input {
 
     addStyle(){
         const {input} = this.elements;
-        input.classList.add(this.cssClass)
+        let inputClasses;
+        !(Array.isArray(this.cssClassArr)) ? inputClasses = [this.cssClassArr] : inputClasses = [...this.cssClassArr]
+
+        inputClasses.forEach(CSSClass => input.classList.add(CSSClass))
+
     }
 
     addPlaceholder(){
