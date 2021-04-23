@@ -1,25 +1,11 @@
-import {Select, Button, TextArea, Input} from "./CreateElements.js"
+import {Select, Button, TextArea, Input, CreateElement} from "./CreateElements.js"
 import API from "./API.js"
 import Form from "./Form.js";
-
 export class Modal {
-    constructor(parent, text, CSSClass) {
-
-    }
-
-    render(){
-        // title
-        // let cross
-        // let btn = new Button(parent, textcontent, class)
-    }
-}
-
-export class ModalLogin extends Modal{
-    constructor(parent,title,btnClass) {
-        super()
+    constructor(parent, titleText, CSSClassObject){
         this.parent = parent;
-        this.title = title;
-        this.btnClass = btnClass;
+        this.titleText = titleText;
+        this.CSSClass = CSSClassObject;
         this.elements = {
             modalWrapper: document.createElement('div'),
             modal: document.createElement('div'),
@@ -27,46 +13,21 @@ export class ModalLogin extends Modal{
             title: document.createElement('p'),
         }
     }
-
     addStyles(){
         const {modalWrapper,modal,crossButton,title} = this.elements
-        modalWrapper.classList.add('modalWrapper');
-        modal.classList.add('modal')
-        crossButton.classList.add('cross')
-        title.classList.add('modal-title')
+        modalWrapper.classList.add(this.CSSClass.modalWrapper)
+        modal.classList.add(this.CSSClass.modal)
+        crossButton.classList.add(this.CSSClass.crossButton)
+        title.classList.add(this.CSSClass.title)
     }
-    //добавляет css классы элементам
-
-    titleAddText(){
+    elementsAddTextContent(){
         const {crossButton,title} = this.elements
-        title.textContent = this.title;
+        title.textContent = this.titleText;
         crossButton.textContent = 'X'
     }
     //добавляет текстовый контент элементам
-
-    render(){
-        const {modalWrapper,modal,crossButton,title,} = this.elements
-        const form = new Form(modal, "form")
-        form.render()
-        const emailInput = form.createInput('email','email-input','email')
-        const passwordInput = form.createInput('password','password-input','password')
-        const loginButton = new Button(modal, "Вход",this.btnClass)
-        loginButton.render()
-        this.addStyles()
-        this.closeModal()
-        this.titleAddText()
-        this.parent.append(modalWrapper)
-        modalWrapper.append(modal)
-        modal.prepend(crossButton,title)
-        this.verifyUserData()
-
-        // emailInput.render()
-        // passwordInput.render()
-    }
-    //отрыгивает созданное на страницу
-
     closeModal(){
-        const {modalWrapper,modal,crossButton} = this.elements
+        const {modalWrapper} = this.elements
         modalWrapper.addEventListener('click',(event)=>{
             if (event.target.classList[0] === 'modalWrapper' || event.target.classList[0] === 'cross'){
                 modalWrapper.remove()
@@ -74,34 +35,75 @@ export class ModalLogin extends Modal{
         })
     }
     //закрывает модальное окно по нажатию на крестик и вне области модалки
-
+}
+export class ModalLogin extends Modal{
+    constructor(parent,titleText,CSSClassObject) {
+        super(parent, titleText, CSSClassObject)
+    }
+    render(){
+        const {parent,titleText,CSSClass} = this
+        const {modalWrapper,modal,crossButton,title} = this.elements
+        const form = new Form(modal, "form")
+        form.render()
+        this.elements.emailInput = form.createInput('email','email-input','email')
+        this.elements.passwordInput = form.createInput('password','password-input','password')
+        this.elements.loginButton = new Button(modal, "Вход", CSSClass.loginButton).render()
+        this.addStyles()
+        this.closeModal()
+        this.elementsAddTextContent()
+        this.parent.append(modalWrapper)
+        modalWrapper.append(modal)
+        modal.prepend(crossButton,title)
+        this.verifyUserData()
+    }
+    //отрыгивает созданное на страницу
     verifyUserData(){
-        document.querySelector('.modal-btn').addEventListener('click', async ()=>{
-            console.log(document.querySelector('.email-input'))
-            console.log(document.querySelector('.password-input'))
+        const {modalWrapper,modal,crossButton,title,loginButton,emailInput,passwordInput} = this.elements
+        loginButton.addEventListener('click', async ()=>{
             const credentials = {
-                email: document.querySelector('.email-input').value,
-                password: document.querySelector('.password-input').value,
+                email: emailInput.value,
+                password: passwordInput.value,
             }
             const {email,password} = credentials;
             const {modalWrapper,modal,crossButton} = this.elements
-
-            await API.login({email,password})
-            // debugger
-            if (API.token){
-                modalWrapper.remove()
+            try {
+                let response = await API.login({email,password})
+                if (API.token === 'Incorrect username or password'){
+                    throw e
+                }
+                else{
+                    modalWrapper.remove()
+                    document.querySelector('.logInBtn').remove()
+                    const visitButton = new Button(document.querySelector('.header'), "Создать визит", ["btn", "visitBtn"]);
+                    visitButton.render()
+                }
+            }catch (e) {
+                console.log(e)
+                let error = new CreateElement('span','modal-error','Incorrect username or password').render()
+                document.querySelector('.form').insertAdjacentElement('beforebegin',error)
+                setTimeout(()=>{
+                    error.remove()
+                },500)
             }
         })
     }
-
 }
-
 export class ModalCreateVisit extends Modal{
-    constructor() {
-        super();
+    constructor(parent,titleText,CSSClassObject) {
+        super(parent,titleText,CSSClassObject);
+    }
+    render(){
+        const {parent,titleText,CSSClass} = this
+        const {modalWrapper,modal,crossButton,title} = this.elements
+        this.addStyles()
+        this.elementsAddTextContent()
+        parent.append(modalWrapper)
+        modalWrapper.append(modal)
+        modal.prepend(crossButton,title)
+        this.closeModal()
+        return modal
     }
 }
-
 export class ModalShowCard{
     constructor() {
     }
