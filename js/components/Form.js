@@ -19,8 +19,8 @@ export default class Form{
         return elements.form
     }
 
-    createInput(placeholder,cssClass,inputType){
-            const input = new Input(this.elements.form, placeholder,cssClass,inputType);
+    createInput(placeholder,cssClassArr,inputType){
+            const input = new Input(this.elements.form, placeholder,cssClassArr,inputType);
             return input.render()
 
     }

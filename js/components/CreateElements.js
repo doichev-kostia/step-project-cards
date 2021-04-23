@@ -61,17 +61,17 @@ export class Select {
      * parent DOMElement,
      * array with the options' text (the number of options is based on the length of the text array),
      * array with the options' value,
-     * object with 2 CSS classes, 1 for <select> another one for <option> e.g. {select: "form-select", option: "form-option"},
+     * object with 2 CSS classes, 1 for <select> another one for <option>  {select: "form-select", options: ["form-option", "form-option2"]},
      * object with attributes and index of the element e.g: {disabled: 0, selected: 2}
      *
      * @returns array with created elements and append them on the page
      *
      * */
-    constructor(parent, textContent, value, classList, optionAttributes) {
+    constructor(parent, textContent, value, classListObj, optionAttributes) {
         this.parent = parent;
         this.textContent = textContent;
         this.value = value;
-        this.classList = classList;
+        this.classListObj = classListObj;
         this.optionAttributes = optionAttributes;
         this.elements = {
             select: document.createElement("select")
@@ -124,11 +124,19 @@ export class Select {
     }
 
     addStyles() {
-        const {classList, elements} = this;
-        elements.select.classList.add(classList.select);
-        elements.options.forEach((item, index) => {
-            item.classList.add(classList.option);
-        })
+        const {classListObj, elements} = this;
+        let selectClasses, optionsClasses;
+
+        !(Array.isArray(classListObj.select)) ? selectClasses = [classListObj.select] : selectClasses = [...classListObj.select]
+        !(Array.isArray(classListObj.options)) ? optionsClasses = [classListObj.options] : optionsClasses = [...classListObj.options]
+
+        selectClasses.forEach(CSSClass => elements.select.classList.add(CSSClass));
+        optionsClasses.forEach(CSSClass => {
+            elements.options.forEach(elem =>{
+                elem.classList.add(CSSClass)
+            })
+        });
+
     }
 
     render() {
@@ -164,16 +172,16 @@ export class TextArea {
      * parent DOMElement,
      * <label> textContent,
      * id that connects <label> and <textarea>,
-     * object with classes  {label: "CSS class", textArea: "CSS class"},
+     * object with classes  {label: "CSS class", textArea: ["CSS class1", "CSS class2"]},
      * object with attributes
      *
      * @returns  array with created elements and append elements on the page
      * */
-    constructor(parent, labelTextContent, textAreaId, classList, attributes) {
+    constructor(parent, labelTextContent, textAreaId, classListObj, attributes) {
         this.parent = parent;
         this.labelTextContent = labelTextContent;
         this.textAreaId = textAreaId;
-        this.classList = classList;
+        this.classListObj = classListObj;
         this.attributes = attributes;
         this.elements = {
             label: document.createElement("label"),
@@ -208,9 +216,18 @@ export class TextArea {
     }
 
     addStyles() {
-        const {classList, elements} = this;
-        elements.label.classList.add(classList.label);
-        elements.textArea.classList.add(classList.textArea)
+        const {classListObj, elements} = this;
+
+        let labelClasses, textAreaClasses;
+
+        !(Array.isArray(classListObj.label)) ? labelClasses = [classListObj.label] : labelClasses = [...classListObj.label]
+        !(Array.isArray(classListObj.textArea)) ? textAreaClasses = [classListObj.textArea] : textAreaClasses = [...classListObj.textArea]
+
+        labelClasses.forEach(CSSClass => elements.label.classList.add(CSSClass));
+        textAreaClasses.forEach(CSSClass => elements.textArea.classList.add(CSSClass))
+
+        elements.label.classList.add(classListObj.label);
+        elements.textArea.classList.add(classListObj.textArea)
     }
 
     addAttributes() {

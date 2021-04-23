@@ -30,6 +30,8 @@ export default function createHeaderSection() {
     logoWrapper.append(logo)
 
 
+
+
     function test(){
         const form = new Form(TODELETE, "form");
         const formElement = form.render();
@@ -38,7 +40,7 @@ export default function createHeaderSection() {
             ["chooseDoctor", "cardiologist", "dentist", "therapist"],
             {
                 select: "form-select",
-                option: "form-option"
+                options: "form-option"
             });
         const fullName = form.createInput("ФИО","form-input", "text");
         const priority = form.createSelect(
@@ -46,7 +48,7 @@ export default function createHeaderSection() {
             ["priority", "medium", "high", "crucial"],
             {
                 select: "form-select",
-                option: "form-option"
+                options: "form-option"
             }
         );
         const reason = form.createInput("Цель визита","form-input", "text");
@@ -77,45 +79,48 @@ export default function createHeaderSection() {
     }
 
     function deleteDoctorSet(parent, doctor){
-        let toDelete = [...parent.children].filter(child =>child.name === doctor)
+        let toDelete = [...parent.children].filter(child =>child.dataset.doctor !== doctor && child.dataset.doctor !== undefined )
 
-        console.log(toDelete)
-
-        // if (toDelete) toDelete.forEach(elem => elem.remove());
+        if (toDelete.length > 0){
+            toDelete.forEach(elem => elem.remove());
+        }
     }
 
-    function therapistSet(flag, parent, doctor){
+    function therapistSet(flag, parent, doctor) {
         /**
          * flag is a boolean value that informs to append the element(true) or delete it(false)
          * */
 
         let age;
-        if (flag){
-        age = new Input(parent, "Возраст", "form-input", "number");
-        const ageElem = age.render();
-        ageElem.name = doctor
-        ageElem.min = "0";
-        ageElem.max = "120";
-        ageElem.title = "Введите значение от 0 до 120"
-        }else {
+        if (flag) {
+            age = new Input(parent, "Возраст", "form-input", "number");
+            const ageElem = age.render();
+            ageElem.dataset.doctor = doctor
+            ageElem.min = "0";
+            ageElem.max = "120";
+            ageElem.title = "Введите значение от 0 до 120";
+
+            cardiologistSet(false, parent, doctor);
+            dentistSet(false, parent, doctor)
+        } else {
             deleteDoctorSet(parent, doctor)
         }
     }
 
-    function dentistSet(flag, parent, doctor){
+    function dentistSet(flag, parent, doctor) {
         /**
          * flag is a boolean value that informs to append the element(true) or delete it(false)
          * */
 
         let date;// Previous appointment date
-        if (flag){
+        if (flag) {
             date = new Input(parent, "Дата последнего визита", "form-input", "date");
             const dateEl = date.render()
-            dateEl.name = doctor
+            dateEl.dataset.doctor = doctor
 
             therapistSet(false, parent, doctor);
             cardiologistSet(false, parent, doctor);
-        }else {
+        } else {
             deleteDoctorSet(parent, doctor)
         }
     }
@@ -133,27 +138,28 @@ export default function createHeaderSection() {
         if (flag){
             bp = new Input(parent, "Обычное давление", "form-input", "number");
             const bpElem = bp.render()
-            bpElem.name = doctor
+            bpElem.dataset.doctor = doctor
             bpElem.max = "160";
             bpElem.min = "50";
             bpElem.title = "Введите значение между 50 и 160";
 
             bmi = new Input(parent, "Индекс массы тела", "form-input", "number");
             const bmiElem = bmi.render()
-            bmiElem.name = doctor
+            bmiElem.dataset.doctor = doctor
             bmiElem.min = "10";
             bmiElem.max = "60";
             bmiElem.title = "Введите значение от 10 до 60";
 
             diseases = new Input(parent, "Перенесенные заболевания сердечно-сосудистой системы", "form-input", "text");
             const diseasesElem = diseases.render()
-            diseasesElem.name = doctor
+            diseasesElem.dataset.doctor = doctor
 
             age = new Input(parent, "Возраст", "form-input", "number");
             const ageElem = age.render()
-            ageElem.name = doctor
+            ageElem.dataset.doctor = doctor
             ageElem.min = "0";
             ageElem.max = "120";
+            ageElem.maxLength = "3"
             ageElem.title = "Введите значение от 0 до 120"
 
             dentistSet(false, parent, doctor);

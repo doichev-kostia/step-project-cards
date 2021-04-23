@@ -60,9 +60,6 @@ export class ModalLogin extends Modal{
         modal.prepend(crossButton,title)
         this.verifyUserData()
 
-
-
-
         // emailInput.render()
         // passwordInput.render()
     }
