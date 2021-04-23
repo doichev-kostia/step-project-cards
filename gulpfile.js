@@ -6,7 +6,7 @@ let paths = {
     build: {
         html: "./index.html",
         css: project_folder + "/css/",
-        img: project_folder + "/img/",
+        img: project_folder + "/",
         fonts: project_folder + "/fonts/",
     },
     src: {
@@ -17,6 +17,7 @@ let paths = {
     },
     watch: {
         html: "./index.html",
+        js: "./js/**/*.js",
         scss: source_folder + "/**/*.scss",
         img: source_folder + "/**/*.{jpg,png,svg,gif,ico,webp}",
     },
@@ -97,6 +98,7 @@ function browserSync() {
         port: 3000,
         notify: false
     })
+    gulp.watch(paths.watch.js).on("change", browsersync.reload)
     gulp.watch(paths.src.scss, css).on("change", browsersync.reload)
     gulp.watch(paths.src.img, images).on("change", browsersync.reload)
     gulp.watch(paths.src.html, build).on("change", browsersync.reload)

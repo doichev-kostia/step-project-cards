@@ -1,0 +1,13 @@
+@mixin commonBtnText {
+  font-family: Roboto, sans-serif;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+@mixin resetButtonStyles{
+  outline: none;
+  display: block;
+  font: inherit;
+  cursor: pointer;
+  border: none;
+}

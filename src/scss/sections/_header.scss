@@ -1,0 +1,9 @@
+@import "../variables";
+@import "../mixins";
+@import "../common";
+
+.header{
+  display: flex;
+  justify-content: space-between;
+  padding-top: 5px;
+}

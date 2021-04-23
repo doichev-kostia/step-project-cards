@@ -1,0 +1,36 @@
+.modalWrapper{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.modal{
+  background: #DADADA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 850px;
+  position: relative;
+}
+
+.cross{
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  border: none;
+  background: transparent;
+  color: $crossColor;
+}
+.modal-title{
+  color: $titleText;
+  @include commonBtnText;
+  font-weight: bold;
+  font-size: 42px;
+  line-height: 49px;
+}
