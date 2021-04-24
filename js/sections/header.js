@@ -1,87 +1,123 @@
 import API from "../components/API.js";
 import Form from "../components/Form.js";
-import {Visit, VisitCardiologist, VisitDentist, VisitTherapist} from "../components/Visit.js";
-import {Select, Button, TextArea, Input, CreateElement} from "../components/CreateElements.js"
-import {ModalLogin, ModalCreateVisit, ModalShowCard} from "../components/Modal.js";
+// import {Visit, VisitCardiologist, VisitDentist, VisitTherapist} from "../components/Visit.js";
+import DOMElement from "../components/DOMElement.js"
+import {ModalLogIn, ModalCreateVisit, ModalShowCard} from "../components/Modal.js";
 
 
 const root = document.querySelector('#root');
-let createVisitButton;
 
 export default function createHeaderSection() {
-    let modalLogIn;
+    const header = new DOMElement("header", ["header", "wrapper"]).render();
+    const logoWrapper = new DOMElement("a", "logo-wrapper", "", {href: "#"}).render();
+    const logo = new DOMElement("img", "logo", "", {src: "../dist/img/logo.png"}).render();
 
-    function createLoginButton(parent) {
-        const button = new Button(parent, "Вход", ["btn", "logInBtn"]);
-        const createdButton = button.render();
-        createdButton.addEventListener("click", event => {
-            modalLogIn = new ModalLogin(root, 'Вход', {modalWrapper:'modalWrapper',modal:'modal',crossButton: 'cross',title:'modal-title',loginButton:'btn'})
-            modalLogIn = modalLogIn.render()
-            createVisitModal()
-        })
-    }
-    function createVisitModal(){
-        let {modalWrapper,modal,crossButton,title,visitButton,emailInput,loginButton,passwordInput} = modalLogIn
-        visitButton.addEventListener('click', ()=>{
-            createVisitForm()
-        })
-    }
-
-    const header = new CreateElement("header", ["header", "wrapper"]).render();
-    const logoWrapper = new CreateElement("a", ["logo-wrapper"]).render();
-    logoWrapper.href = "#";
-    const logo = new CreateElement("img", ["logo"]).render();
-    logo.src = "../dist/img/logo.png";
     root.append(header);
-    header.append(logoWrapper)
-    createLoginButton(header);
-    logoWrapper.append(logo)
+    header.append(logoWrapper);
+    logoWrapper.append(logo);
 
+    createLoginButton(header, root);
 }
+
 createHeaderSection()
-function createVisitForm(){
-    const modal = new ModalCreateVisit(root,"Создать визит",{modalWrapper:'modalWrapper',modal:'modal',crossButton: 'cross',title:'modal-title',loginButton:'btn'}).render()
-    const form = new Form(modal, "form");
-    const formElement = form.render();
-    const chooseDoctor = form.createSelect(
-        ["Выберите врача:","Кардиолог", "Стоматолог", "Терапевт"],
-        ["chooseDoctor", "cardiologist", "dentist", "therapist"],
-        {
-            select: "form-select",
-            option: "form-option"
-        });
-    const fullName = form.createInput("ФИО","form-input", "text");
-    const priority = form.createSelect(
-        ["Срочность","Обычная","Приоритетная","Неотложная"],
-        ["priority", "medium", "high", "crucial"],
-        {
-            select: "form-select",
-            option: "form-option"
-        }
-    );
-    const reason = form.createInput("Цель визита","form-input", "text");
-    const description = form.createTextArea("Краткое описание",
-        "description",
-        {
-            label: "form-label",
-            textArea: "form-textarea"
-        });
-    chooseDoctor[1].disabled = true;
-    priority[1].disabled = true;
-    chooseDoctor[0].addEventListener("change", event=>{
-        let value = event.currentTarget.value;
-        doctorFormSet(value, form.elements.form )
+
+
+function createLoginButton(parent, modalParent) {
+    const loginButton = new DOMElement("button", ["btn", "logInBtn"], "Вход").render();
+
+    loginButton.addEventListener("click", event => {
+        let modalLogInElements = new ModalLogIn(modalParent, 'Вход', {
+            modalWrapper: 'modal-wrapper',
+            modal: 'modal',
+            crossButton: 'cross',
+            title: 'modal-title',
+            submitButton: 'btn'
+        }).render();
+
+        createVisitModal(modalLogInElements)
+    })
+
+    parent.append(loginButton);
+}
+
+function createVisitModal(modalElements) {
+    let {modalWrapper, modal, crossButton, title, visitButton, emailInput, loginButton, passwordInput} = modalElements
+    visitButton.addEventListener('click', () => {
+        createVisitForm()
     })
 }
 
+function createVisitForm() {
+    const modal = new ModalCreateVisit(root, "Создать визит", {
+        modalWrapper: 'modal-wrapper',
+        modal: 'modal',
+        crossButton: 'cross',
+        title: 'modal-title',
+        submitButton: 'btn'
+    }).render()
 
-function doctorFormSet(chosenDoctor, parent){
+    const form = new Form("form");
+    const formElement = form.renderForm()
+
+
+    const chooseDoctor = form.renderSelect("",
+        ["", "cardiologist", "dentist", "therapist"],
+        {select: "form__select", options: "form__options"},
+        ["Выберите врача: ", "Кардиолог", "Стоматолог", "Терапевт"],
+        {select:{required: true}});
+
+    const fullName = form.renderInput("", {input: "form__input"}, "ФИО", {input:{required: true}});
+
+    const priority = form.renderSelect("",
+        ["", "regular", "medium", "high"],
+        {select: "form__select", options: "form__options"},
+        ["Срочность: ", "Обычная", "Приоритетная", "Неотложная"],
+        {select:{required: true}});
+
+    const reason = form.renderInput("", {input: "form__input"}, "Цель визита", {input:{required: true}});
+
+    const doctorIndividualParametersContainer = new DOMElement("div", "form__doctor-input-container").render();//Needed to store the information that belongs to a specific doctor
+
+    formElement.append(doctorIndividualParametersContainer)
+
+    const submitButton = form.renderInput("", {input: "btn"}, "", {input:{type: "submit",value: "Создать визит"}});
+
+    chooseDoctor.forEach(item => {
+        if (item.value === "" && item.tagName.toLowerCase() === "option") {
+            item.disabled = true
+        }
+    })
+
+    priority.forEach(item => {
+        if (item.value === "" && item.tagName.toLowerCase() === "option") {
+            item.disabled = true
+        }
+    })
+
+
+
+    chooseDoctor.forEach(item => {
+        if (item.tagName.toLowerCase() === "select") {
+            item.addEventListener("change", event => {
+                let value = event.currentTarget.value;
+                doctorFormSet(value, doctorIndividualParametersContainer, form)
+            })
+        }
+    })
+
+    modal.append(formElement);
+
+
+
+}
+
+function doctorFormSet(chosenDoctor, parent, form){
     if (chosenDoctor === "cardiologist"){
-        cardiologistSet(true, parent, chosenDoctor);
+        cardiologistSet(true, parent, chosenDoctor, form);
     }else if (chosenDoctor === "dentist"){
-        dentistSet(true, parent, chosenDoctor);
+        dentistSet(true, parent, chosenDoctor, form);
     }else if( chosenDoctor === "therapist"){
-        therapistSet(true, parent, chosenDoctor);
+        therapistSet(true, parent, chosenDoctor, form);
     }
 }
 
@@ -93,19 +129,37 @@ function deleteDoctorSet(parent, doctor){
     }
 }
 
-function therapistSet(flag, parent, doctor) {
+function therapistSet(flag, parent, doctor, form) {
     /**
      * flag is a boolean value that informs to append the element(true) or delete it(false)
      * */
 
-    let age;
     if (flag) {
-        age = new Input(parent, "Возраст", "form-input", "number");
-        const ageElem = age.render();
-        ageElem.dataset.doctor = doctor
-        ageElem.min = "0";
-        ageElem.max = "120";
-        ageElem.title = "Введите значение от 0 до 120";
+        let age = form.renderInput("",
+            {input: "form__input"},
+            "Возраст",
+            {input: {
+                min: "0",
+                max: "120",
+                title: "Введите значение от 0 до 120",
+                required: true,
+                type: "number",
+                    maxLength: "3",
+                    size: "3"
+
+                }
+            },
+            {parent: parent, position: "beforeend"})
+
+        age.dataset.doctor = doctor;
+
+        let description = form.renderTextarea("Краткое описание: ",
+            {label: "form__label", textarea: "form__textarea"},
+            "description",
+            {},
+            {parent: parent, position: "beforeend"});
+
+        description[0].dataset.doctor = doctor;// <label> is parent for textarea and has index 0
 
         cardiologistSet(false, parent, doctor);
         dentistSet(false, parent, doctor)
@@ -114,16 +168,31 @@ function therapistSet(flag, parent, doctor) {
     }
 }
 
-function dentistSet(flag, parent, doctor) {
+function dentistSet(flag, parent, doctor, form) {
     /**
      * flag is a boolean value that informs to append the element(true) or delete it(false)
      * */
 
-    let date;// Previous appointment date
     if (flag) {
-        date = new Input(parent, "Дата последнего визита", "form-input", "date");
-        const dateEl = date.render()
-        dateEl.dataset.doctor = doctor
+        let date = form.renderInput("", //date of the previous appointment
+            {input: "form__input"},
+            "Дата последнего визита",
+            {
+                input: {
+                    type: "date"
+                }
+            },
+            {parent: parent, position: "beforeend"});
+
+        date.dataset.doctor = doctor;
+
+        let description = form.renderTextarea("Краткое описание: ",
+            {label: "form__label", textarea: "form__textarea"},
+            "description",
+            {},
+            {parent: parent, position: "beforeend"});
+
+        description[0].dataset.doctor = doctor;// <label> is parent for textarea and has index 0
 
         therapistSet(false, parent, doctor);
         cardiologistSet(false, parent, doctor);
@@ -132,42 +201,89 @@ function dentistSet(flag, parent, doctor) {
     }
 }
 
-function cardiologistSet(flag, parent, doctor) {
+function cardiologistSet(flag, parent, doctor, form) {
     /**
      * flag is a boolean value that informs to append the element(true) or delete it(false)
      * */
 
-    let bp;//Blood Pressure
-    let bmi;// body mass index
-    let diseases;
-    let age;
-
     if (flag){
-        bp = new Input(parent, "Обычное давление", "form-input", "number");
-        const bpElem = bp.render()
-        bpElem.dataset.doctor = doctor
-        bpElem.max = "160";
-        bpElem.min = "50";
-        bpElem.title = "Введите значение между 50 и 160";
+        let bp = form.renderInput("", //Blood Pressure
+            {input: "form__input"},
+            "Обычное давление",
+            {input: {
+                type: "text",
+                max: "160",
+                min: "50",
+                title: "Введите значение между 50 и 160",
+                    maxLength: "6",
+                    size: "6",
+                }
+            },
+            {parent: parent, position: "beforeend"});
 
-        bmi = new Input(parent, "Индекс массы тела", "form-input", "number");
-        const bmiElem = bmi.render()
-        bmiElem.dataset.doctor = doctor
-        bmiElem.min = "10";
-        bmiElem.max = "60";
-        bmiElem.title = "Введите значение от 10 до 60";
+        bp.dataset.doctor = doctor;
 
-        diseases = new Input(parent, "Перенесенные заболевания сердечно-сосудистой системы", "form-input", "text");
-        const diseasesElem = diseases.render()
-        diseasesElem.dataset.doctor = doctor
+        let bmi = form.renderInput("", // body mass index
+            {input: "form__input"},
+            "Индекс массы тела",
+            {input: {
+                type: "number",
+                max: "60",
+                min: "10",
+                title: "Введите значение между 10 и 60",
+                    maxLength: "5",
+                    size: "5"
+                }
+            },
+            {parent: parent, position: "beforeend"});
 
-        age = new Input(parent, "Возраст", "form-input", "number");
-        const ageElem = age.render()
-        ageElem.dataset.doctor = doctor
-        ageElem.min = "0";
-        ageElem.max = "120";
-        ageElem.maxLength = "3"
-        ageElem.title = "Введите значение от 0 до 120"
+        bmi.dataset.doctor = doctor;
+
+        let heartDiseases = form.renderInput("",
+            {input: "form__input"},
+            "Перенесенные заболевания сердечно-сосудистой системы",
+            {},
+            {parent: parent, position: "beforeend"});
+
+        heartDiseases.dataset.doctor = doctor;
+
+        let age = form.renderInput("",
+            {input: "form__input"},
+            "Возраст",
+            {input: {
+                min: "0",
+                max: "120",
+                title: "Введите значение от 0 до 120",
+                required: true,
+                type: "number",
+                    maxLength: "3",
+                    size: "3"
+                }
+            },
+            {parent: parent, position: "beforeend"})
+
+        age.dataset.doctor = doctor;
+
+        let description = form.renderTextarea("Краткое описание: ",
+            {label: "form__label", textarea: "form__textarea"},
+            "description",
+            {},
+            {parent: parent, position: "beforeend"});
+
+        description[0].dataset.doctor = doctor;// <label> is parent for textarea and has index 0
+
+        bp.addEventListener("keydown", event =>{
+            let targetValue = event.target.value;
+            if(targetValue.length === 3){
+                targetValue += "/"
+                event.target.value = targetValue;
+                if(event.code === "Backspace"){
+                    targetValue = ""
+                    event.target.value = targetValue
+                }
+            }
+
+        })
 
         dentistSet(false, parent, doctor);
         therapistSet(false, parent, doctor);
@@ -176,16 +292,3 @@ function cardiologistSet(flag, parent, doctor) {
     }
 }
 
-
-
-export async function visitTest(parent){
-
-    const visit = await new VisitDentist(parent, {
-        doctor: "cardiologist",
-        fullName: "Gogi Doe",
-        priority: "medium",
-        reason: "Any text",
-        description: "Anything"
-    })
-    // visit.createCard()
-}

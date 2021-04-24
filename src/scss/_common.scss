@@ -1,5 +1,19 @@
+@import "src/scss/mixins";
+@import "src/scss/variables";
+
 .wrapper{
   max-width: 1160px;
   padding: 0 20px;
   margin: 0 auto;
+}
+
+.btn{
+  @include resetButtonStyles;
+  @include commonBtnText;
+  max-width: 180px;
+  box-sizing: border-box;
+  background: $buttonColor;
+  padding: .5em 1.5em;
+  color: $buttonTextColor;
+  border-radius: 5px;
 }

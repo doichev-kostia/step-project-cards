@@ -1,4 +1,8 @@
-.modalWrapper{
+@import "../mixins";
+@import "../variables";
+@import "../common";
+
+.modal-wrapper{
   position: fixed;
   top: 0;
   left: 0;
@@ -17,16 +21,17 @@
   align-items: center;
   width: 850px;
   position: relative;
+  overflow: auto;
 }
 
 .cross{
+  @include resetButtonStyles;
   position: absolute;
   right: 10px;
   top: 10px;
-  border: none;
-  background: transparent;
   color: $crossColor;
 }
+
 .modal-title{
   color: $titleText;
   @include commonBtnText;
