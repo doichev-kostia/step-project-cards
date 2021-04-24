@@ -29,6 +29,7 @@ export default function createHeaderSection() {
 
     const header = new CreateElement("header", ["header", "wrapper"]).render();
     const logoWrapper = new CreateElement("a", ["logo-wrapper"]).render();
+    logoWrapper.href = "#";
     const logo = new CreateElement("img", ["logo"]).render();
     logo.src = "../dist/img/logo.png";
     root.append(header);

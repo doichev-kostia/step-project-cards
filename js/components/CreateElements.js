@@ -1,12 +1,16 @@
-/**
- * create classes:
- * Button
- * input
- * select
- * textArea
- * */
 export class CreateElement{
-    constructor(elementTag, classListArr, textContent) {
+    /**
+     * @requires:
+     * elementTag - string
+     * classListArr - array with strings e.g ["class1", "class2"]
+     * textContent - string
+     * attributesObj - object with pairs {
+     *     attrName: attrValue
+     * }
+     * */
+
+    constructor(elementTag, classListArr, textContent, attributesObj) {
+        this.attributesObj = attributesObj;
         this.classList = classListArr;
         this.textContent = textContent;
         this.element = document.createElement(elementTag)
@@ -17,25 +21,43 @@ export class CreateElement{
             return  counter ++
         }
     }
+
     static counter = CreateElement.count()
+
     addIdentifier(){
         const {element} = this;
         element.dataset.id = `${CreateElement.counter()}`
     }
+
+    addAttributes(){
+        const {attributesObj, element} = this;
+        if (attributesObj){
+            for (let [key, value] of Object.entries(attributesObj)){
+                element[key] = value;
+            }
+        }
+    }
     render(){
         let {element, classList, textContent} = this;
+
         if (!(Array.isArray(classList))) {
-            classList = [...classList]
+            classList = [classList]
         }
+
         classList.forEach(CSSClass => {
             element.classList.add(CSSClass);
         })
+
         if(textContent){
             element.textContent = textContent;
         }
+
+        this.addAttributes()
         this.addIdentifier()
+
         return element;
     }
+
     remove(){
         const {element, classList} = this;
         const elements = [...document.querySelectorAll(classList)];
@@ -46,20 +68,20 @@ export class CreateElement{
 export class Select {
     /**
      * @requires:
-     * parent DOMElement,
-     * array with the options' text (the number of options is based on the length of the text array),
-     * array with the options' value,
-     * object with 2 CSS classes, 1 for <select> another one for <option> e.g. {select: "form-select", option: "form-option"},
-     * object with attributes and index of the element e.g: {disabled: 0, selected: 2}
+     * parent - DOMElement,
+     * textContent - array with the options' text (the number of options is based on the length of the text array),
+     * value - array with the options' value,
+     * classListObj - object with 2 keys, 1 for <select> another one for <option> (array can be used as value)  {select: "CSS class", option: ["CSS class1", "CSS class2"]},
+     * optionAttributes - object with attributes and index of the element e.g: {disabled: 0, selected: 2}
      *
      * @returns array with created elements and append them on the page
      *
      * */
-    constructor(parent, textContent, value, classList, optionAttributes) {
+    constructor(parent, textContent, value, classListObj, optionAttributes) {
         this.parent = parent;
         this.textContent = textContent;
         this.value = value;
-        this.classList = classList;
+        this.classListObj = classListObj;
         this.optionAttributes = optionAttributes;
         this.elements = {
             select: document.createElement("select")
@@ -103,10 +125,10 @@ export class Select {
         })
     }
     addStyles() {
-        const {classList, elements} = this;
-        elements.select.classList.add(classList.select);
+        const {classListObj, elements} = this;
+        elements.select.classList.add(classListObj.select);
         elements.options.forEach((item, index) => {
-            item.classList.add(classList.option);
+            item.classList.add(classListObj.option);
         })
     }
     render() {
