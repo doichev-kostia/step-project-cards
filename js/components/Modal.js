@@ -41,23 +41,39 @@ export class ModalLogin extends Modal{
         super(parent, titleText, CSSClassObject)
     }
     render(){
-        const {parent,titleText,CSSClass} = this
-        const {modalWrapper,modal,crossButton,title} = this.elements
+        const {parent,titleText,CSSClass,elements} = this
+        const {modalWrapper,modal,crossButton,title} = elements
         const form = new Form(modal, "form")
         form.render()
+        this.elements.visitButton = new Button(document.querySelector('.header'), "Создать визит", ["btn", "visitBtn"]).render();
+        this.elements.visitButton.hidden = true;
+        this.elements.visitButton.disabled = true;
+
         this.elements.emailInput = form.createInput('email','email-input','email')
         this.elements.passwordInput = form.createInput('password','password-input','password')
-        this.elements.loginButton = new Button(modal, "Вход", CSSClass.loginButton).render()
+        this.elements.loginButton = new Button(modal, "Войти", CSSClass.loginButton).render()
+
         this.addStyles()
         this.closeModal()
         this.elementsAddTextContent()
         this.parent.append(modalWrapper)
         modalWrapper.append(modal)
         modal.prepend(crossButton,title)
+
         this.verifyUserData()
+        return {modalWrapper,
+            modal,
+            crossButton,
+            title,
+            visitButton: elements.visitButton,
+            emailInput: elements.emailInput,
+            loginButton: elements.loginButton,
+            passwordInput: elements.passwordInput
+        }
     }
     //отрыгивает созданное на страницу
     verifyUserData(){
+
         const {modalWrapper,modal,crossButton,title,loginButton,emailInput,passwordInput} = this.elements
         loginButton.addEventListener('click', async ()=>{
             const credentials = {
@@ -65,20 +81,21 @@ export class ModalLogin extends Modal{
                 password: passwordInput.value,
             }
             const {email,password} = credentials;
-            const {modalWrapper,modal,crossButton} = this.elements
+
             try {
                 let response = await API.login({email,password})
                 if (API.token === 'Incorrect username or password'){
-                    throw e
+                    throw new Error('not verified user')
                 }
                 else{
                     modalWrapper.remove()
                     document.querySelector('.logInBtn').remove()
-                    const visitButton = new Button(document.querySelector('.header'), "Создать визит", ["btn", "visitBtn"]);
-                    visitButton.render()
+                    this.elements.visitButton.hidden = false;
+                    this.elements.visitButton.disabled = false;
+
                 }
             }catch (e) {
-                console.log(e)
+                console.error(e)
                 let error = new CreateElement('span','modal-error','Incorrect username or password').render()
                 document.querySelector('.form').insertAdjacentElement('beforebegin',error)
                 setTimeout(()=>{
