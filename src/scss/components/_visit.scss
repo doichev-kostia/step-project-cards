@@ -1,0 +1,83 @@
+@import "../variables";
+@import "../mixins";
+@import "../common";
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  max-width: 373px;
+  border-radius: 10px;
+  border: 1px solid #DADADA;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+
+
+  &__label {
+    display: block;
+    font-size: 22px;
+    padding: .5em .3em;
+    color: #9B9FAB;
+  }
+
+  &__input {
+    display: block;
+    border-radius: 5px;
+    font-size: 20px;
+    color: #585F73;
+  }
+
+  &__input--disabled {
+    margin: 0.3em 0;
+    background: transparent;
+    border: none;
+  }
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+  }
+
+  &__icon-button{
+    opacity: 0;
+  }
+
+
+  &__button {
+    @include resetButtonStyles;
+    margin: 0 auto;
+    border: 1px solid #585F73;
+    box-sizing: border-box;
+    border-radius: 20px;
+    max-width: 140px;
+    color: #585F73;
+  }
+}
+
+.edit{
+
+  &__container{
+    max-width: 82px;
+    position: absolute;
+    top: 30px;
+    right: 10px;
+    border-radius: 5px;
+    border: 1px solid #DADADA;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  &__btn{
+    @include resetButtonStyles;
+    font-size: 15px;
+    color: #333333;
+  }
+
+  &__btn--hover:hover{
+    color: red;
+  }
+}

@@ -77,7 +77,6 @@ export class ModalLogIn extends Modal {
         modalWrapper.append(modal)
         modal.prepend(crossButton, title, elements.form)
 
-        this.verifyUserData()
         return {
             modalWrapper,
             modal,
@@ -91,49 +90,6 @@ export class ModalLogIn extends Modal {
         }
     }
 
-    verifyUserData() {
-
-        const {
-            form,
-            modalWrapper,
-            modal,
-            crossButton,
-            title,
-            submitButton,
-            emailInput,
-            passwordInput,
-            visitButton
-        } = this.elements;
-
-        const logInBtn = document.querySelector(".logInBtn")
-        submitButton.addEventListener('click', async (event) => {
-            event.preventDefault()
-            const credentials = {
-                email: emailInput.value,
-                password: passwordInput.value,
-            }
-            const {email, password} = credentials;
-
-            try {
-                let response = await API.login({email, password})
-                if (API.token === 'Incorrect username or password') {
-                    throw new Error('not verified user')
-                } else {
-                    modalWrapper.remove()
-                    logInBtn.replaceWith(visitButton)
-                }
-            } catch (e) {
-                console.error(e)
-                let error = new DOMElement('span', 'modal-error', 'Incorrect username or password').render()
-                form.insertAdjacentElement('beforebegin', error)
-                setTimeout(() => {
-                    error.remove()
-                }, 500)
-            }
-
-            // await visitTest()
-        })
-    }
 }
 
 export class ModalCreateVisit extends Modal {
@@ -150,7 +106,12 @@ export class ModalCreateVisit extends Modal {
         modalWrapper.append(modal)
         modal.prepend(crossButton, title)
         this.closeModal()
-        return modal
+        return {
+            modalWrapper,
+            modal,
+            crossButton,
+            title,
+        }
     }
 }
 

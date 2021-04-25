@@ -4,7 +4,7 @@ export default class API {
     static getHeaders() {
         return {
             'content-type': 'application/json',
-            'Authorization': `Bearer ${API.token || localStorage.token}`
+            'authorization': `Bearer ${API.token || localStorage.token}`
         }
     }
 
@@ -13,14 +13,20 @@ export default class API {
          * @requires object with user's data like: { email: 'your@email.com', password: 'password' }
          * @returns string with token
          */
-        return await fetch(`${API.URL}/login`, {
+        await fetch(`${API.URL}/login`, {
             method: "POST",
             headers: {
                 'content-type': 'application/json'
             },
             body: JSON.stringify(userData)
         })
-            .then(response => response.text())
+            .then(response => {
+                if(response.ok){
+                    return response.text()
+                }else {
+                    throw new Error(`Response status: ${response.status.toString()}`)
+                }
+            })
             .then(token => API.saveToken(token))
     }
 
@@ -34,12 +40,12 @@ export default class API {
          * @requires object
          * @return if success , it returns the same object with id
          * */
-        return await fetch(`${API.URL}`, {
+        let response = await fetch(`${API.URL}`, {
             method: "POST",
             headers: API.getHeaders(),
             body: JSON.stringify(cardToSave)
         })
-            .then(response => response.json())
+            return await response.json()
     }
 
     static async editCard(cardId, editedCard) {
@@ -48,7 +54,7 @@ export default class API {
          * and the object that will be put instead of an old one
          * @returns changed object
          * */
-        return await fetch(`${API.URL}/${cardId}`, {
+         await fetch(`${API.URL}/${cardId}`, {
             method: 'PUT',
             headers: API.getHeaders(),
             body: JSON.stringify(editedCard)
@@ -61,7 +67,7 @@ export default class API {
          * @requires id of the object we need to delete
          * @return if success, it returns status: 200
          * */
-        return await fetch(`${API.URL}/${cardId}`, {
+         await fetch(`${API.URL}/${cardId}`, {
             method: "DELETE",
             headers: {
                 'Authorization': `Bearer ${API.token || localStorage.token}`
@@ -74,7 +80,7 @@ export default class API {
          * @requires id of the object we need to delete
          * @return object
          * */
-        return await fetch(`${API.URL}/${cardId}`, {
+         await fetch(`${API.URL}/${cardId}`, {
             method: "GET",
             headers: {
                 'Authorization': `Bearer ${API.token || localStorage.token}`
@@ -85,13 +91,13 @@ export default class API {
 
     static async getAllCards() {
         /**@return array with objects */
-        return await fetch(`${API.URL}`, {
+        let response = await fetch(`${API.URL}`, {
             method: "GET",
             headers: {
-                'Authorization': `Bearer ${API.token || localStorage.token}`
+                'authorization': `Bearer ${API.token || localStorage.token}`
             }
         })
-            .then(response => response.json())
+            return await response.json()
     }
 }
 

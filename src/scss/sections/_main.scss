@@ -1,0 +1,16 @@
+.main{
+  margin-top: 20px;
+}
+
+.visit-section{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+  grid-gap: 20px;
+  align-items: center;
+}
+
+.no-visit-message{
+  font-size: 50px;
+  text-align: center;
+  margin-top: auto;
+}

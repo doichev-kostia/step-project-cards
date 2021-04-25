@@ -12,13 +12,27 @@ import {createEditSVG} from "./CreateSVG.js";
 *   description
 * }
 * */
+const defaultClasses = {
+    cardContainer: "card",
+    label: "card__label",
+    inputDisabled: ["card__input--disabled","card__input" ],
+    input: "card__input",
+    button: "card__button",
+    editSVG: ["card__icon" , "edit"],
+    editSVGButton: ["card__icon", "card__icon-button"],
+    actionsContainer: "edit__container",
+    editBtn: "edit__btn",
+    deleteBtn: [ "edit__btn", "edit__btn--hover"],
+    extendedInfoContainer: "card__extended-info-container",
+    textArea: "card__textarea",
+    textAreaDisabled: ["card__textarea--disabled", "card__textarea"]
+}
 
 
-export class Visit{
+export class Visit {
     /***
      * @requires:
-     * parent DOMElement,
-     * object {
+     * visitDetails - object {
      *   id,
      *   fullName,
      *   doctor,
@@ -26,16 +40,19 @@ export class Visit{
      *   reason,
      *   description
      * },
-     * CSS classes obj (array can be used as value){
+     * CSS classes - obj (array can be used as a value){
+     *     cardContainer: "CSS class"
+     *     label: "CSS class",
+     *     inputDisabled: "CSS class",
+     *     input: "CSS class",
      *     button: "CSS class"
-     *     inputs: "CSS class",
-     *     inputsDisabled: "CSS class",
-     *     labels: "CSS class",
-     *     textArea: "CSS class",
      *     editSVG: "CSS class",
      *     actionsContainer: "CSS class",
      *     editBtn: ["btn", "visit-btn"],
-     *     deleteBtn: ["btn", "CSS class", "CSS class2"]
+     *     deleteBtn: ["btn", "CSS class", "CSS class2"],
+     *     extendedInfoContainer: "CSS class"
+     *     textArea: "CSS class",
+     *     textAreaDisabled: "",
      * },
      * SVGParams obj {
      *     width: number,
@@ -43,84 +60,120 @@ export class Visit{
      * }
      */
 
-    constructor(parent, visitDetails, classListObj, SVGParams) {
-        this.parent = parent;
+    constructor(visitDetails, labelsObj, classListObj = defaultClasses, SVGParams = {width: 20, height: 20}) {
         this.visitDetails = visitDetails;
+        this.labelsObj = labelsObj;
         this.classListObj = classListObj;
         this.SVGParams = SVGParams;
         this.elements = {}
     }
-    //
-    // async postUserData(){
-    //     let {visitDetails} = this;
-    //
-    //     visitDetails =  await API.saveCard(visitDetails);
-    //     this.id = visitDetails.id
-    // }
-    //
-    // async deleteCard(elementToDelete, cardId){
-    //     elementToDelete.remove()
-    //     await API.deleteCard(cardId)
-    // }
-    //
-    // async editCard(cardContainer) {
-    //     const allInputs = [...cardContainer.children].map(item =>{
-    //         return item.tagName.toLowerCase() === "input";
-    //     });
-    //
-    //     allInputs.forEach(input =>{
-    //         input.classList.replace(classListObj.inputsDisabled, classListObj.inputs);
-    //     })
-    //
-    // }
-    //
+
+
+    async deleteCard(elementToDelete, cardId) {
+        elementToDelete.remove()
+        await API.deleteCard(cardId);
+
+        let cardsLeft = API.getAllCards();
+        if(cardsLeft.length === 0){
+            const noVisitMessage = document.querySelector(".no-visit-message");
+            noVisitMessage.hidden = true;
+        }
+    }
+
+    async editCard(cardContainer) {
+        //     const allInputs = [...cardContainer.children].map(item =>{
+        //         return item.tagName.toLowerCase() === "input";
+        //     });
+        //
+        //     allInputs.forEach(input =>{
+        //         input.classList.replace(classListObj.inputsDisabled, classListObj.inputs);
+        //     })
+        //
+    }
+
     // async applyChanges(cardId, editedCard){
     //
     //     const response = await API.editCard(cardId,editedCard)
     //     this.render(response)
     // }
     //
-    // expandCard() {
-    //
-    // }
-    //
-    // renderTemplate(receivedVisitDetails){
-    //     const {parent, elements, classListObj, SVGParams} = this;
-    //     this.id = receivedVisitDetails.id;
-    //
-    //     elements.cardContainer = new DOMElement("div", classListObj.cardContainer).render();
-    //
-    //     elements.fullNameLabel = new DOMElement("label",classListObj.inputsDisabled , "Пациент: ").render();
-    //     elements.fullName = new Input(elements.fullNameLabel, `${receivedVisitDetails.fullName}`, classListObj.inputsDisabled, "text");
-    //
-    //     elements.doctorLabel = new DOMElement("label", classListObj.labels, "Врач: ").render();
-    //     elements.doctor = new Input(elements.doctorLabel, `${receivedVisitDetails.doctor}`,classListObj.inputsDisabled, "text");
-    //
-    //     elements.priorityLabel = new DOMElement("label", classListObj.labels, "Срочность: ").render();
-    //     elements.priority = new Input(elements.priorityLabel, `${receivedVisitDetails.priority}`, classListObj.inputsDisabled, "text");
-    //
-    //     elements.reasonLabel = new DOMElement("label", classListObj.labels, "Цель визита: ").render();
-    //     elements.reason = new Input(elements.reasonLabel, `${receivedVisitDetails.reason}`, classListObj.inputsDisabled, "text");
-    //
-    //     elements.description = new TextArea(parent,
-    //         "Описание визита: ",
-    //         "description",
-    //         {label: classListObj.labels, textArea: classListObj.textArea},)
-    //
-    //     elements.showMoreButton = new Button(elements.cardContainer, "Показать больше", classListObj.button);
-    //     elements.editSVG = createEditSVG(classListObj.editSVG, SVGParams.width, SVGParams.height );
-    //
-    //     elements.actionsContainer = new DOMElement("div", classListObj.actionsContainer).render();
-    //     elements.editBtn = new Button(elements.actionsContainer, "Изменить", classListObj.editBtn).render();
-    //     elements.deleteBtn = new Button(elements.actionsContainer, "Удалить", classListObj.deleteBtn).render();
-    //
-    //     elements.showMoreButton.addEventListener("click", event => this.expandCard())
-    //     elements.deleteBtn.addEventListener("click", async (event) => await this.deleteCard(elements.cardContainer, this.id))
-    //     elements.editBtn.addEventListener("click", async event => await this.editCard(elements.cardContainer))
-    //
-    //     parent.append(elements.cardContainer);
-    //     elements.cardContainer.append(elements.editSVG, elements.actionsContainer,elements.fullNameLabel, elements.doctorLabel, elements.priorityLabel, elements.reasonLabel)
-    // }
+    extendCard() {
+        const {visitDetails, elements, classListObj, SVGParams} = this;
+        const {
+            cardContainer,
+            fullNameLabel,
+            fullName,
+            doctorLabel,
+            doctor,
+            extendedInformationContainer,
+            showMoreButton,
+            editSVG,
+            actionsContainer,
+            editBtn,
+            deleteBtn
+        } = elements;
+
+
+    }
+
+    render() {
+        const {visitDetails, labelsObj, elements, classListObj, SVGParams} = this;
+        this.id = visitDetails.id;
+
+        elements.cardContainer = new DOMElement("div", classListObj.cardContainer, "",
+            {id: this.id}).render();
+
+        for (let [key, value] of Object.entries(labelsObj)) {
+            elements[`${key}Label`] = new DOMElement("label", classListObj.label, `${value}`).render();
+        }
+
+        for (let [key, value] of Object.entries(visitDetails)) {
+            if (key === "description"){
+                elements[key] = new DOMElement("textarea", classListObj.textAreaDisabled)
+            }else if(key !== "id" ) {
+                elements[key] = new DOMElement("input", classListObj.inputDisabled, "",
+                    {placeholder: `${value}`, disabled: true}).render()
+
+            }
+        }
+
+        elements.extendedInformationContainer = new DOMElement("div", classListObj.extendedInfoContainer).render()
+
+        elements.showMoreButton = new DOMElement("button", classListObj.button, "Показать больше").render();
+        elements.editSVG = createEditSVG(classListObj.editSVG, SVGParams.width, SVGParams.height );
+        elements.editSVGButton = new DOMElement("button", classListObj.editSVGButton, "",
+            {visibility: "hidden"}).render();
+
+        elements.actionsContainer = new DOMElement("div", classListObj.actionsContainer, "", {hidden: true}).render();
+        elements.editBtn = new DOMElement("button", classListObj.editBtn,"Изменить").render();
+        elements.deleteBtn = new DOMElement("button", classListObj.deleteBtn,"Удалить").render();
+
+        let actionContainerTrigger = false;
+        elements.editSVGButton.addEventListener("click", event=> {
+            elements.actionsContainer.hidden = actionContainerTrigger;
+            actionContainerTrigger = !actionContainerTrigger;
+        });
+
+        elements.showMoreButton.addEventListener("click", event => this.extendCard());
+        elements.deleteBtn.addEventListener("click", async (event) => await this.deleteCard(elements.cardContainer, this.id));
+        elements.editBtn.addEventListener("click", async event => await this.editCard(elements.cardContainer));
+
+        elements.actionsContainer.append(elements.editBtn, elements.deleteBtn);
+        elements.fullNameLabel.append(elements.fullName);
+        elements.doctorLabel.append(elements.doctor);
+
+        elements.cardContainer.insertAdjacentHTML("afterbegin",elements.editSVG)
+        elements.cardContainer.append(
+            elements.actionsContainer,
+            elements.editSVGButton,
+            elements.fullNameLabel,
+            elements.doctorLabel,
+            elements.extendedInformationContainer,
+            elements.showMoreButton
+            );
+
+        return elements.cardContainer
+    }
 
 
 }
