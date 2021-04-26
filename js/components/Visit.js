@@ -15,14 +15,14 @@ import {createEditSVG} from "./CreateSVG.js";
 const defaultClasses = {
     cardContainer: "card",
     label: "card__label",
-    inputDisabled: ["card__input--disabled","card__input" ],
+    inputDisabled: ["card__input--disabled", "card__input"],
     input: "card__input",
     button: "card__button",
-    editSVG: ["card__icon" , "edit"],
+    editSVG: ["card__icon", "edit"],
     editSVGButton: ["card__icon", "card__icon-button"],
     actionsContainer: "edit__container",
     editBtn: "edit__btn",
-    deleteBtn: [ "edit__btn", "edit__btn--hover"],
+    deleteBtn: ["edit__btn", "edit__btn--hover"],
     extendedInfoContainer: "card__extended-info-container",
     textArea: "card__textarea",
     textAreaDisabled: ["card__textarea--disabled", "card__textarea"]
@@ -73,30 +73,51 @@ export class Visit {
         elementToDelete.remove()
         await API.deleteCard(cardId);
 
-        let cardsLeft = API.getAllCards();
-        if(cardsLeft.length === 0){
+        let cardsLeft = await API.getAllCards();
+        if (cardsLeft.length === 0) {
             const noVisitMessage = document.querySelector(".no-visit-message");
-            noVisitMessage.hidden = true;
+            noVisitMessage.hidden = false;
         }
     }
 
-    async editCard(cardContainer) {
-        //     const allInputs = [...cardContainer.children].map(item =>{
-        //         return item.tagName.toLowerCase() === "input";
-        //     });
-        //
-        //     allInputs.forEach(input =>{
-        //         input.classList.replace(classListObj.inputsDisabled, classListObj.inputs);
-        //     })
-        //
+    toggleVisibility() {
+        const {visitDetails, elements, classListObj, SVGParams} = this;
+        const {cardContainer} = elements;
+
+        cardContainer.hidden = !cardContainer.hidden
     }
 
-    // async applyChanges(cardId, editedCard){
-    //
-    //     const response = await API.editCard(cardId,editedCard)
-    //     this.render(response)
-    // }
-    //
+    async editCard() {
+        const {visitDetails, elements, classListObj, SVGParams} = this;
+
+        // const allInputs = [...elements.cardContainer.children].map(item => {
+        //     let tagName = item.tagName.toLowerCase()
+        //     if (tagName !== input) {
+        //         item.children.map(element => {
+        //             if (element.tagName.toLowerCase() !== "input"){
+        //                 element.children.map(elem => elem.tagName.toLowerCase() === "input")
+        //             }else {
+        //                 return element
+        //             }
+        //         })
+        //     } else {
+        //         return item
+        //     }
+
+        // });
+        //
+        // allInputs.forEach(input => {
+        //     input.classList.replace(classListObj.inputsDisabled, classListObj.inputs);
+        // })
+
+    }
+
+    async applyChanges(cardId, editedCard) {
+        //
+        //     const response = await API.editCard(cardId,editedCard)
+        //     this.render(response)
+    }
+
     extendCard() {
         const {visitDetails, elements, classListObj, SVGParams} = this;
         const {
@@ -128,9 +149,9 @@ export class Visit {
         }
 
         for (let [key, value] of Object.entries(visitDetails)) {
-            if (key === "description"){
+            if (key === "description") {
                 elements[key] = new DOMElement("textarea", classListObj.textAreaDisabled)
-            }else if(key !== "id" ) {
+            } else if (key !== "id") {
                 elements[key] = new DOMElement("input", classListObj.inputDisabled, "",
                     {placeholder: `${value}`, disabled: true}).render()
 
@@ -140,16 +161,16 @@ export class Visit {
         elements.extendedInformationContainer = new DOMElement("div", classListObj.extendedInfoContainer).render()
 
         elements.showMoreButton = new DOMElement("button", classListObj.button, "Показать больше").render();
-        elements.editSVG = createEditSVG(classListObj.editSVG, SVGParams.width, SVGParams.height );
+        elements.editSVG = createEditSVG(classListObj.editSVG, SVGParams.width, SVGParams.height);
         elements.editSVGButton = new DOMElement("button", classListObj.editSVGButton, "",
             {visibility: "hidden"}).render();
 
         elements.actionsContainer = new DOMElement("div", classListObj.actionsContainer, "", {hidden: true}).render();
-        elements.editBtn = new DOMElement("button", classListObj.editBtn,"Изменить").render();
-        elements.deleteBtn = new DOMElement("button", classListObj.deleteBtn,"Удалить").render();
+        elements.editBtn = new DOMElement("button", classListObj.editBtn, "Изменить").render();
+        elements.deleteBtn = new DOMElement("button", classListObj.deleteBtn, "Удалить").render();
 
         let actionContainerTrigger = false;
-        elements.editSVGButton.addEventListener("click", event=> {
+        elements.editSVGButton.addEventListener("click", event => {
             elements.actionsContainer.hidden = actionContainerTrigger;
             actionContainerTrigger = !actionContainerTrigger;
         });
@@ -162,7 +183,7 @@ export class Visit {
         elements.fullNameLabel.append(elements.fullName);
         elements.doctorLabel.append(elements.doctor);
 
-        elements.cardContainer.insertAdjacentHTML("afterbegin",elements.editSVG)
+        elements.cardContainer.insertAdjacentHTML("afterbegin", elements.editSVG)
         elements.cardContainer.append(
             elements.actionsContainer,
             elements.editSVGButton,
@@ -170,42 +191,8 @@ export class Visit {
             elements.doctorLabel,
             elements.extendedInformationContainer,
             elements.showMoreButton
-            );
+        );
 
         return elements.cardContainer
     }
-
-
 }
-
-// export class VisitDentist extends Visit{
-//     constructor(parent, visitDetails, classListObj, SVGParams) {
-//         super(parent, visitDetails, classListObj, SVGParams);
-//     }
-//
-//     render(receivedVisitDetails) {
-//         super.renderTemplate(receivedVisitDetails)
-//         const {parent, elements, classListObj} = this;
-//         const {cardContainer, fullNameLabel, fullName, doctorLabel, doctor, priorityLabel,
-//             priority, reasonLabel, reason, description ,showMoreButton,editSVG,actionsContainer,
-//             editBtn,deleteBtn} = elements;
-//
-//         elements.dateLabel = new DOMElement("label", classListObj.labels, "Дата последнего посещения").render();
-//         elements.date = new Input(elements.dateLabel, receivedVisitDetails.date, classListObj.inputsDisabled, "text");
-//
-//
-//         cardContainer.append(editSVG, actionsContainer, fullNameLabel, doctorLabel, showMoreButton)
-//     }
-// }
-//
-// export class VisitCardiologist extends Visit{
-//     constructor() {
-//         super();
-//     }
-// }
-//
-// export class VisitTherapist extends Visit{
-//     constructor() {
-//         super();
-//     }
-// }

@@ -13,7 +13,7 @@ export default async function createHeaderSection() {
     const logo = new DOMElement("img", "logo", "", {src: "../dist/img/logo.png"}).render();
     const main = new DOMElement("main", "main").render();
     const cardSection = new DOMElement("section", ["visit-section", "wrapper"]).render()
-    const noVisitMessage = new DOMElement("p", "no-visit-message", "Визитов не добавлено" , {hidden: true}).render();
+    const noVisitMessage = new DOMElement("p", "no-visit-message", "Визитов не добавлено", {hidden: true}).render();
 
     root.append(header, main);
     main.append(cardSection);
@@ -33,7 +33,7 @@ export default async function createHeaderSection() {
         let allUserCards = await API.getAllCards()
         if (allUserCards.length > 0) {
             await renderCards(cardSection, allUserCards);
-        }else {
+        } else {
             noVisitMessage.hidden = false;
         }
     }
@@ -115,8 +115,8 @@ function renderCards(parent, cards) {
         age: "Возраст: ",
         date: "Дата последнего посещения: "
     }
-    if(!Array.isArray(cards)){
-       cards = [cards]
+    if (!Array.isArray(cards)) {
+        cards = [cards]
     }
 
     const noVisitMessage = document.querySelector(".no-visit-message");
@@ -142,14 +142,20 @@ async function createVisitCard(formElements) {
 
         if (itemTag === "div") {
             [...item.children].forEach(element => {
-                if(element.tagName.toLowerCase() !== "label"){
+                if (element.tagName.toLowerCase() !== "label") {
                     visitDetails[element.name] = element.value;
-                }else {
+                } else {
                     visitDetails[element.children[0].name] = element.children[0].value;
                 }
             });
-        } else if(item.type !== "submit"){
-            visitDetails[item.name] = item.value;
+        } else if (itemTag === "input") {
+            if (item.type !== "submit") {
+                visitDetails[item.name] = item.value;
+            }
+        } else if (itemTag === "label") {
+            item.children.forEach(elem => {
+                visitDetails[elem.name] = elem.value;
+            })
         }
     })
 
@@ -312,25 +318,28 @@ function dentistSet(flag, parent, doctor, form) {
      * */
 
     if (flag) {
-        let date = form.renderInput("", //date of the previous appointment
-            {input: "form__input"},
-            "Дата последнего визита",
+        let date = form.renderInput("Дата последнего визита: ", //date of the previous appointment
+            {input: "form__input", label: "form__label"},
+            "",
             {
                 input: {
                     type: "date",
-                    name: "date"
+                    name: "date",
+                    required: true,
                 }
             },
             {parent: parent, position: "beforeend"});
 
-        date.dataset.doctor = doctor;
+        date[1].dataset.doctor = doctor;
 
         let description = form.renderTextarea("Краткое описание: ",
             {label: "form__label", textarea: "form__textarea"},
             "description",
-            {textarea: {
+            {
+                textarea: {
                     name: "description"
-                }},
+                }
+            },
             {parent: parent, position: "beforeend"});
 
         description[0].dataset.doctor = doctor;// <label> is parent for textarea and has index 0
@@ -359,7 +368,8 @@ function cardiologistSet(flag, parent, doctor, form) {
                     title: "Введите значение между 50 и 160",
                     maxLength: "6",
                     size: "6",
-                    name: "bloodPressure"
+                    name: "bloodPressure",
+                    required: true,
                 }
             },
             {parent: parent, position: "beforeend"});
@@ -377,7 +387,8 @@ function cardiologistSet(flag, parent, doctor, form) {
                     title: "Введите значение между 10 и 60",
                     maxLength: "5",
                     size: "5",
-                    name: "bmi"
+                    name: "bmi",
+                    required: true,
                 }
             },
             {parent: parent, position: "beforeend"});
@@ -387,9 +398,12 @@ function cardiologistSet(flag, parent, doctor, form) {
         let heartDiseases = form.renderInput("",
             {input: "form__input"},
             "Перенесенные заболевания сердечно-сосудистой системы",
-            {input:{
-                name: "diseases"
-                }},
+            {
+                input: {
+                    name: "diseases",
+                    required: true,
+                }
+            },
             {parent: parent, position: "beforeend"});
 
         heartDiseases.dataset.doctor = doctor;
@@ -416,9 +430,11 @@ function cardiologistSet(flag, parent, doctor, form) {
         let description = form.renderTextarea("Краткое описание: ",
             {label: "form__label", textarea: "form__textarea"},
             "description",
-            {textarea: {
+            {
+                textarea: {
                     name: "description"
-                }},
+                }
+            },
             {parent: parent, position: "beforeend"});
 
         description[0].dataset.doctor = doctor;// <label> is parent for textarea and has index 0
