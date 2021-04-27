@@ -7,59 +7,6 @@ import {ModalLogIn, ModalCreateVisit, ModalShowCard} from "../components/Modal.j
 
 const root = document.querySelector('#root');
 
-function createFilter(parent){
-    let select = new DOMElement('select', 'filterSelect', 'Выберите врача').render()
-    let selectConf = new DOMElement('button', 'selectConf', 'ok').render()
-
-    let selectPriority = new DOMElement('select', 'filterSelect', 'Выберите срочность').render()
-    let selectPriorityBtn = new DOMElement('button', 'selectConf', 'ok').render()
-
-    parent.prepend(select, selectConf,selectPriority,selectPriorityBtn);
-
-    //элементы фильтра поиска по врачу
-    let optionAll = new DOMElement('option', 'filterOption', 'all').render()
-    let optionDentist = new DOMElement('option', 'filterOption', 'dentist').render()
-    let optionCardiologist = new DOMElement('option', 'filterOption', 'cardiologist').render()
-    let optionTherapist = new DOMElement('option', 'filterOption', 'therapist').render()
-    select.append(optionAll, optionDentist, optionCardiologist, optionTherapist)
-    //конец элементов фильтра поиска по врачу
-    let priorityAll = new DOMElement('option', 'filterOption', 'all').render()
-    let priorityLow = new DOMElement('option', 'filterOption', 'regular').render()
-    let priorityNormal = new DOMElement('option', 'filterOption', 'medium').render()
-    let priorityHigh = new DOMElement('option', 'filterOption', 'high').render()
-    selectPriority.append(priorityAll, priorityLow, priorityNormal, priorityHigh)
-
-
-
-    // let selectPriority = new DOMElement('select', 'filterSelect', 'Выберите срочность').render()
-    // let selectPriorityBtn = new DOMElement('button', 'selectConf', 'ok').render()
-
-    selectConf.addEventListener('click', async () => {
-        document.querySelectorAll('.card').forEach(card => card.classList.remove('hidden'))
-        let doctor = select.value
-        await API.getAllCards().then(response => response.forEach(function (object) {
-            if (doctor === 'all') {
-                return
-            }
-            else if (object.doctor !== doctor) {
-                document.getElementById(`${object.id}`).classList.add('hidden');
-            }
-        }))
-    })
-    selectPriorityBtn.addEventListener('click',async ()=>{
-        document.querySelectorAll('.card').forEach(card => card.classList.remove('hidden'))
-        let priority = selectPriority.value;
-        await API.getAllCards().then(response => response.forEach(function (object){
-            if (priority === 'all') {
-                return
-            } else if(object.priority !== priority){
-                document.getElementById(`${object.id}`).classList.add('hidden');
-            }
-        }))
-        console.log(selectPriority.value);
-    })
-}
-
 export default async function createHeaderSection() {
     const header = new DOMElement("header", ["header", "wrapper"]).render();
     const logoWrapper = new DOMElement("a", "logo-wrapper", "", {href: "#"}).render();
@@ -89,7 +36,6 @@ export default async function createHeaderSection() {
         } else {
             noVisitMessage.hidden = false;
         }
-        createFilter(main)
     }
     await createVisitModal(modalElements);
 }
@@ -269,6 +215,7 @@ async function createVisitCard(formElements) {
     delete formElementsObj.submitButton
 
     for (let [key, value] of Object.entries(formElementsObj)) {
+
             visitDetails[key].value = formElementsObj[key].children[0].value;
     }
 
