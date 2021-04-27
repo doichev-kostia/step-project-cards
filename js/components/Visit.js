@@ -1,17 +1,8 @@
 import API from "./API.js";
 import DOMElement from "./DOMElement.js";
 import {createEditSVG} from "./CreateSVG.js";
+import {Form, VisitForm, VisitFormDentist, VisitFormTherapist, VisitFormCardiologist} from "./Form.js";
 
-/*
-* DefaultObj ={
-*   id,
-*   fullName,
-*   doctor,
-*   priority,
-*   reason,
-*   description
-* }
-* */
 const defaultClasses = {
     cardContainer: "card",
     label: "card__label",
@@ -60,12 +51,13 @@ export class Visit {
      * }
      */
 
-    constructor(visitDetails, labelsObj, classListObj = defaultClasses, SVGParams = {width: 20, height: 20}) {
+    constructor(visitDetails, classListObj = defaultClasses, SVGParams = {width: 20, height: 20}) {
         this.visitDetails = visitDetails;
-        this.labelsObj = labelsObj;
         this.classListObj = classListObj;
         this.SVGParams = SVGParams;
-        this.elements = {}
+        this.elements = {
+            cardContainer: new DOMElement("div", classListObj.cardContainer, "", {id: visitDetails.id}).render()
+        }
     }
 
 
@@ -87,78 +79,65 @@ export class Visit {
         cardContainer.hidden = !cardContainer.hidden
     }
 
+    extendCard() {
+
+    }
+
     async editCard() {
         const {visitDetails, elements, classListObj, SVGParams} = this;
 
-        // const allInputs = [...elements.cardContainer.children].map(item => {
-        //     let tagName = item.tagName.toLowerCase()
-        //     if (tagName !== input) {
-        //         item.children.map(element => {
-        //             if (element.tagName.toLowerCase() !== "input"){
-        //                 element.children.map(elem => elem.tagName.toLowerCase() === "input")
-        //             }else {
-        //                 return element
-        //             }
-        //         })
-        //     } else {
-        //         return item
-        //     }
 
-        // });
-        //
-        // allInputs.forEach(input => {
-        //     input.classList.replace(classListObj.inputsDisabled, classListObj.inputs);
-        // })
-
+        const labels = [...elements.cardContainer.children].filter(child => child.tagName.toLowerCase() === "label");
+        labels.forEach(label => {
+            [...label.children].forEach(child => {
+                if (child.classList.contains(`${classListObj.inputDisabled}`)) {
+                    child.classList.replace(classListObj.inputDisabled, classListObj.input);
+                    child.disabled = false;
+                } else {
+                    this.applyChanges()
+                    child.classList.replace(classListObj.input, classListObj.inputDisabled)
+                    child.disabled = true;
+                }
+            });
+        });
     }
 
-    async applyChanges(cardId, editedCard) {
-        //
-        //     const response = await API.editCard(cardId,editedCard)
-        //     this.render(response)
-    }
-
-    extendCard() {
+    async applyChanges() {
         const {visitDetails, elements, classListObj, SVGParams} = this;
-        const {
-            cardContainer,
-            fullNameLabel,
-            fullName,
-            doctorLabel,
-            doctor,
-            extendedInformationContainer,
-            showMoreButton,
-            editSVG,
-            actionsContainer,
-            editBtn,
-            deleteBtn
-        } = elements;
 
+        // const response = await API.editCard(this.id,elements.editedCard)
+        // this.render(response)
+    }
 
+    static insertElementNextToAnotherElement(staticElement, elementToInsert) {
+        if(!Array.isArray(elementToInsert)){
+            elementToInsert = [elementToInsert]
+        }
+
+        elementToInsert.forEach(item =>{
+            staticElement.after(item);
+        })
     }
 
     render() {
-        const {visitDetails, labelsObj, elements, classListObj, SVGParams} = this;
-        this.id = visitDetails.id;
+        const {visitDetails, elements, classListObj, SVGParams} = this;
+        this.id = visitDetails.id
 
-        elements.cardContainer = new DOMElement("div", classListObj.cardContainer, "",
-            {id: this.id}).render();
-
-        for (let [key, value] of Object.entries(labelsObj)) {
-            elements[`${key}Label`] = new DOMElement("label", classListObj.label, `${value}`).render();
-        }
+        const form = new Form();
 
         for (let [key, value] of Object.entries(visitDetails)) {
-            if (key === "description") {
-                elements[key] = new DOMElement("textarea", classListObj.textAreaDisabled)
-            } else if (key !== "id") {
-                elements[key] = new DOMElement("input", classListObj.inputDisabled, "",
-                    {placeholder: `${value}`, disabled: true}).render()
-
+            if (key !== "id") {
+                elements[key] = form.renderInput(value.label, {
+                    label: classListObj.label,
+                    input: classListObj.inputDisabled
+                }, value.value, {
+                    input: {
+                        disabled: true
+                    }
+                });
             }
         }
 
-        elements.extendedInformationContainer = new DOMElement("div", classListObj.extendedInfoContainer).render()
 
         elements.showMoreButton = new DOMElement("button", classListObj.button, "Показать больше").render();
         elements.editSVG = createEditSVG(classListObj.editSVG, SVGParams.width, SVGParams.height);
@@ -175,24 +154,72 @@ export class Visit {
             actionContainerTrigger = !actionContainerTrigger;
         });
 
-        elements.showMoreButton.addEventListener("click", event => this.extendCard());
+        let extendFlag = true;
+        elements.showMoreButton.addEventListener("click", event => {
+            this.extendCard(extendFlag);
+            extendFlag = !extendFlag
+        });
         elements.deleteBtn.addEventListener("click", async (event) => await this.deleteCard(elements.cardContainer, this.id));
-        elements.editBtn.addEventListener("click", async event => await this.editCard(elements.cardContainer));
+        elements.editBtn.addEventListener("click", async event => await this.editCard());
 
         elements.actionsContainer.append(elements.editBtn, elements.deleteBtn);
-        elements.fullNameLabel.append(elements.fullName);
-        elements.doctorLabel.append(elements.doctor);
+
 
         elements.cardContainer.insertAdjacentHTML("afterbegin", elements.editSVG)
+
         elements.cardContainer.append(
+            elements.fullName,
+            elements.doctor,
             elements.actionsContainer,
             elements.editSVGButton,
-            elements.fullNameLabel,
-            elements.doctorLabel,
-            elements.extendedInformationContainer,
             elements.showMoreButton
         );
 
-        return elements.cardContainer
+        return elements
+    }
+}
+
+export class VisitTherapist extends Visit {
+    renderCard() {
+       return super.render();
+    }
+
+    extendCard(flag) {
+        /**flag is a boolean value. True - the card needs to be extended
+         * False - the card needs to be compressed  */
+
+        const {visitDetails, elements, classListObj, SVGParams} = this;
+
+        super.extendCard()
+        const root = document.querySelector("#root");
+        const cardContainerCopy = elements.cardContainer;
+
+
+        if (flag) {
+            const modalWrapper = new DOMElement("div", "modal-wrapper").render();
+            elements.showMoreButton.textContent = "Скрыть"
+
+            root.append(modalWrapper)
+            modalWrapper.append(cardContainerCopy)
+            Visit.insertElementNextToAnotherElement(elements.doctor,
+                [elements.priority, elements.reason, elements.age, elements.description ]);
+        }else{
+               const modalWrapper = document.querySelector(".modal-wrapper");
+               elements.showMoreButton.textContent = "Показать больше";
+
+               modalWrapper.remove()
+        }
+    }
+}
+
+export class VisitDentist extends Visit {
+    renderCard() {
+        return  super.render()
+    }
+}
+
+export class VisitCardiologist extends Visit {
+    renderCard() {
+        return  super.render()
     }
 }

@@ -1,6 +1,6 @@
 import DOMElement from "./DOMElement.js"
 import API from "./API.js"
-import Form from "./Form.js";
+import {Form, VisitForm} from "./Form.js";
 // import {visitTest} from "../sections/header.js";
 
 export class Modal {
@@ -66,13 +66,16 @@ export class ModalLogIn extends Modal {
                 autocomplete: "current-password",
                 required: true
             }});
-        elements.submitButton = elements.form.renderInput("", {input: CSSClass.submitButton}, "", {input:{type: "submit",value: "Войти"}});
+        elements.submitButton = new DOMElement("button",  CSSClass.submitButton, "Войти", {type: "submit"}).render();
+
+
 
         this.addStyles()
         this.closeModal()
         this.elementsAddTextContent()
 
-        elements.form = elements.form.renderForm()
+        elements.form = elements.form.renderForm();
+        elements.form.append(elements.emailInput, elements.passwordInput, elements.submitButton);
         parent.append(modalWrapper)
         modalWrapper.append(modal)
         modal.prepend(crossButton, title, elements.form)
