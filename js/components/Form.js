@@ -74,16 +74,16 @@ export class Form {
      *      @returns array of created DOM elements
      * */
 
-    constructor(classListObj = "form", attributesObj = {}) {
-        this.classListObj = classListObj;
+    constructor(classList = "form", attributesObj = {}) {
         this.attributesObj = attributesObj;
+        this.classList = classList;
         this.elements = {
-            form: new DOMElement("form", classListObj.form, "").render()
+            form: new DOMElement("form", classList, "").render()
         }
     }
 
     renderForm(){
-        let {classListObj,  attributesObj, elements} = this;
+        let {classList,  attributesObj, elements} = this;
         return elements.form
     }
 
@@ -192,17 +192,15 @@ export class VisitForm extends Form {
             });
 
         elements.priority = super.renderSelect("Срочность: ",
-            ["","low", "normal", "high"],
+            ["regular", "medium", "high"],
             {label: classListObj.label, select: classListObj.select, options: classListObj.options},
-            ["Выберите срочность: ", "Обычная", "Приоритетная", "Неотложная"],
+            ["Обычная", "Приоритетная", "Неотложная"],
             {
                 select: {
                     required: true,
                     name: "priority"
                 }
             });
-
-        elements.priority.children[0].children[0].disabled = true;
 
         elements.reason = super.renderInput("Цель визита",
             {label: classListObj.label, input: classListObj.input},
@@ -229,11 +227,13 @@ export class VisitForm extends Form {
             {type: "submit"}).render();
 
         elements.form.append(
+            elements.doctor,
             elements.fullName,
             elements.priority,
             elements.reason,
             elements.description,
             elements.submitButton)
+
 
         return {
             form: elements.form,
@@ -241,25 +241,7 @@ export class VisitForm extends Form {
             priority: elements.priority,
             reason: elements.reason,
             description: elements.description,
-            submitButton:  elements.submitButton,
-            card:{
-                fullName:{
-                    label: "ФИО: ",
-                    value: elements.fullName.children[0].value
-                },
-                priority:{
-                    label:"Срочность: ",
-                    value: elements.priority.children[0].value
-                },
-                reason: {
-                    label:"Цель визита: ",
-                    value: elements.reason.children[0].value
-                },
-                description:{
-                    label:"Описание визита: ",
-                    value: elements.description.children[0].value
-                }
-            }
+            submitButton:  elements.submitButton
         };
     }
 
@@ -290,21 +272,10 @@ export class VisitFormTherapist extends VisitForm{
                 }
             })
 
-        defaultFormElements.card.age = {
-            label: "Возраст: ",
-            value: elements.age.children[0].value
-        };
-
-        defaultFormElements.card.doctor = {
-            label: "Доктор: ",
-            value: "Терапевт"
-        }
-
         VisitForm.insertElementNextToAnotherElement(elements.reason, elements.age);
-
         return{
             ...defaultFormElements,
-            age: elements.age,
+            age: elements.age
         }
     }
 
@@ -326,20 +297,10 @@ export class VisitFormDentist extends VisitForm {
                 }
             })
 
-        defaultFormElements.card.previousVisitDate ={
-            label:"Дата последнего визита: ",
-            value: elements.previousVisitDate.children[0].value
-        }
-
-        defaultFormElements.card.doctor = {
-            label: "Доктор: ",
-            value: "Стоматолог"
-        }
-
         VisitForm.insertElementNextToAnotherElement(elements.reason, elements.previousVisitDate);
         return {
             ...defaultFormElements,
-            previousVisitDate: elements.previousVisitDate
+            date: elements.previousVisitDate
         }
     }
 }
@@ -420,32 +381,6 @@ export class VisitFormCardiologist extends VisitForm {
             }
 
         })
-
-        defaultFormElements.card.bloodPressure = {
-            label: "Обычное давление: ",
-            value: elements.bloodPressure.children[0].value
-        }
-
-         defaultFormElements.card.bmi = {
-            label: "Индекс массы тела: ",
-            value: elements.bmi.children[0].value
-        }
-
-         defaultFormElements.card.heartDisease = {
-            label: "Заболевания сердечно-сосудистой системы: ",
-            value: elements.heartDiseases.children[0].value
-        }
-
-         defaultFormElements.card.age = {
-            label: "Возраст: ",
-            value: elements.age.children[0].value
-        }
-
-        defaultFormElements.card.doctor = {
-            label: "Доктор: ",
-            value: "Кардиолог"
-        }
-
 
         VisitForm.insertElementNextToAnotherElement(elements.reason, elements.previousVisitDate);
         return {

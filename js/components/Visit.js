@@ -85,17 +85,21 @@ export class Visit {
 
     async editCard() {
         const {visitDetails, elements, classListObj, SVGParams} = this;
-
+        if (!Array.isArray(classListObj.input)){
+            classListObj.input = [classListObj.input]
+        }
 
         const labels = [...elements.cardContainer.children].filter(child => child.tagName.toLowerCase() === "label");
         labels.forEach(label => {
             [...label.children].forEach(child => {
-                if (child.classList.contains(`${classListObj.inputDisabled}`)) {
-                    child.classList.replace(classListObj.inputDisabled, classListObj.input);
+                if (child.disabled === true) {
+                    child.className = classListObj.input.join(" ")
                     child.disabled = false;
+                    elements.editBtn.textContent = "Готово";
                 } else {
                     this.applyChanges()
-                    child.classList.replace(classListObj.input, classListObj.inputDisabled)
+                    elements.editBtn.textContent = "Изменить"
+                    child.className = classListObj.inputDisabled.join(" ")
                     child.disabled = true;
                 }
             });
@@ -105,8 +109,11 @@ export class Visit {
     async applyChanges() {
         const {visitDetails, elements, classListObj, SVGParams} = this;
 
-        // const response = await API.editCard(this.id,elements.editedCard)
-        // this.render(response)
+
+
+
+        const response = await API.editCard(this.id,visitDetails)
+        this.render(response)
     }
 
     static insertElementNextToAnotherElement(staticElement, elementToInsert) {
@@ -160,7 +167,7 @@ export class Visit {
             extendFlag = !extendFlag
         });
         elements.deleteBtn.addEventListener("click", async (event) => await this.deleteCard(elements.cardContainer, this.id));
-        elements.editBtn.addEventListener("click", async event => await this.editCard());
+        elements.editBtn.addEventListener("click", async event =>{await this.editCard();})
 
         elements.actionsContainer.append(elements.editBtn, elements.deleteBtn);
 
@@ -192,15 +199,13 @@ export class VisitTherapist extends Visit {
 
         super.extendCard()
         const root = document.querySelector("#root");
-        const cardContainerCopy = elements.cardContainer;
-
 
         if (flag) {
             const modalWrapper = new DOMElement("div", "modal-wrapper").render();
             elements.showMoreButton.textContent = "Скрыть"
 
-            root.append(modalWrapper)
-            modalWrapper.append(cardContainerCopy)
+            root.append(modalWrapper);
+            modalWrapper.append(elements.cardContainer);
             Visit.insertElementNextToAnotherElement(elements.doctor,
                 [elements.priority, elements.reason, elements.age, elements.description ]);
         }else{

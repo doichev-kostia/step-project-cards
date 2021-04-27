@@ -269,7 +269,6 @@ async function createVisitCard(formElements) {
     delete formElementsObj.submitButton
 
     for (let [key, value] of Object.entries(formElementsObj)) {
-debugger
             visitDetails[key].value = formElementsObj[key].children[0].value;
     }
 
