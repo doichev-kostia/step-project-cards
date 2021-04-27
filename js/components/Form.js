@@ -175,7 +175,12 @@ export class Form {
 export class VisitForm extends Form {
 
     static insertElementNextToAnotherElement(staticElement, elementToInsert) {
-        staticElement.after(elementToInsert);
+        if(!Array.isArray(elementToInsert)){
+            elementToInsert = [elementToInsert]
+        }
+        elementToInsert.forEach(item =>{
+            staticElement.after(item);
+        })
     }
 
     renderVisitForm() {
@@ -431,7 +436,7 @@ export class VisitFormCardiologist extends VisitForm {
             value: elements.bmi.children[0].value
         }
 
-         defaultFormElements.card.heartDisease = {
+         defaultFormElements.card.heartDiseases = {
             label: "Заболевания сердечно-сосудистой системы: ",
             value: elements.heartDiseases.children[0].value
         }
@@ -447,7 +452,8 @@ export class VisitFormCardiologist extends VisitForm {
         }
 
 
-        VisitForm.insertElementNextToAnotherElement(elements.reason, elements.previousVisitDate);
+        VisitForm.insertElementNextToAnotherElement(elements.reason,
+            [ elements.bloodPressure,  elements.bmi,  elements.heartDiseases,  elements.age ]);
         return {
             ...defaultFormElements,
             bloodPressure: elements.bloodPressure,
