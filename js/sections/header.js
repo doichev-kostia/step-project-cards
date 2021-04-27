@@ -10,13 +10,29 @@ const root = document.querySelector('#root');
 function createFilter(parent){
     let select = new DOMElement('select', 'filterSelect', 'Выберите врача').render()
     let selectConf = new DOMElement('button', 'selectConf', 'ok').render()
-    parent.prepend(select, selectConf);
 
+    let selectPriority = new DOMElement('select', 'filterSelect', 'Выберите срочность').render()
+    let selectPriorityBtn = new DOMElement('button', 'selectConf', 'ok').render()
+
+    parent.prepend(select, selectConf,selectPriority,selectPriorityBtn);
+
+    //элементы фильтра поиска по врачу
     let optionAll = new DOMElement('option', 'filterOption', 'all').render()
     let optionDentist = new DOMElement('option', 'filterOption', 'dentist').render()
     let optionCardiologist = new DOMElement('option', 'filterOption', 'cardiologist').render()
     let optionTherapist = new DOMElement('option', 'filterOption', 'therapist').render()
     select.append(optionAll, optionDentist, optionCardiologist, optionTherapist)
+    //конец элементов фильтра поиска по врачу
+    let priorityAll = new DOMElement('option', 'filterOption', 'all').render()
+    let priorityLow = new DOMElement('option', 'filterOption', 'regular').render()
+    let priorityNormal = new DOMElement('option', 'filterOption', 'medium').render()
+    let priorityHigh = new DOMElement('option', 'filterOption', 'high').render()
+    selectPriority.append(priorityAll, priorityLow, priorityNormal, priorityHigh)
+
+
+
+    // let selectPriority = new DOMElement('select', 'filterSelect', 'Выберите срочность').render()
+    // let selectPriorityBtn = new DOMElement('button', 'selectConf', 'ok').render()
 
     selectConf.addEventListener('click', async () => {
         document.querySelectorAll('.card').forEach(card => card.classList.remove('hidden'))
@@ -25,10 +41,22 @@ function createFilter(parent){
             if (doctor === 'all') {
                 return
             }
-            if (object.doctor !== doctor) {
+            else if (object.doctor !== doctor) {
                 document.getElementById(`${object.id}`).classList.add('hidden');
             }
         }))
+    })
+    selectPriorityBtn.addEventListener('click',async ()=>{
+        document.querySelectorAll('.card').forEach(card => card.classList.remove('hidden'))
+        let priority = selectPriority.value;
+        await API.getAllCards().then(response => response.forEach(function (object){
+            if (priority === 'all') {
+                return
+            } else if(object.priority !== priority){
+                document.getElementById(`${object.id}`).classList.add('hidden');
+            }
+        }))
+        console.log(selectPriority.value);
     })
 }
 
