@@ -87,7 +87,7 @@ export class Visit {
         const {visitDetails, elements, classListObj, SVGParams} = this;
 
 
-        const labels = [...elements.cardContainer.children].map(child => child.tagName.toLowerCase() === "label");
+        const labels = [...elements.cardContainer.children].filter(child => child.tagName.toLowerCase() === "label");
         labels.forEach(label => {
             [...label.children].forEach(child => {
                 if (child.classList.contains(`${classListObj.inputDisabled}`)) {
@@ -130,7 +130,11 @@ export class Visit {
                 elements[key] = form.renderInput(value.label, {
                     label: classListObj.label,
                     input: classListObj.inputDisabled
-                }, value.value);
+                }, value.value, {
+                    input: {
+                        disabled: true
+                    }
+                });
             }
         }
 
@@ -197,7 +201,7 @@ export class VisitTherapist extends Visit {
 
             root.append(modalWrapper)
             modalWrapper.append(cardContainerCopy)
-            Visit.insertElementNextToAnotherElement(elements.fullName,
+            Visit.insertElementNextToAnotherElement(elements.doctor,
                 [elements.priority, elements.reason, elements.age, elements.description ]);
         }else{
                const modalWrapper = document.querySelector(".modal-wrapper");
