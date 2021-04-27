@@ -5,9 +5,10 @@
 
 .visit-section{
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(370px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(375px, 1fr));
   grid-gap: 20px;
   align-items: center;
+  padding: 20px 0;
 }
 
 .no-visit-message{

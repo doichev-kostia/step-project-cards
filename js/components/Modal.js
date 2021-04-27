@@ -44,14 +44,11 @@ export class Modal {
 }
 
 export class ModalLogIn extends Modal {
-    constructor(parent, titleText, CSSClassObject) {
-        super(parent, titleText, CSSClassObject)
-    }
 
     render() {
         const {parent, titleText, CSSClass, elements} = this
         const {modalWrapper, modal, crossButton, title} = elements
-        elements.form = new Form("form");
+        elements.form = new Form();
 
         elements.visitButton = new DOMElement("button", ["btn", "visitBtn"], "Создать визит").render()
 
@@ -67,8 +64,6 @@ export class ModalLogIn extends Modal {
                 required: true
             }});
         elements.submitButton = new DOMElement("button",  CSSClass.submitButton, "Войти", {type: "submit"}).render();
-
-
 
         this.addStyles()
         this.closeModal()
@@ -96,9 +91,6 @@ export class ModalLogIn extends Modal {
 }
 
 export class ModalCreateVisit extends Modal {
-    constructor(parent, titleText, CSSClassObject) {
-        super(parent, titleText, CSSClassObject);
-    }
 
     render() {
         const {parent, titleText, CSSClass, elements} = this

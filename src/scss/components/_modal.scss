@@ -14,16 +14,6 @@
   background-color: rgba(0,0,0,0.5);
 }
 
-.modal{
-  background: #DADADA;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  width: 850px;
-  position: relative;
-  overflow: auto;
-}
-
 .cross{
   @include resetButtonStyles;
   position: absolute;
@@ -32,17 +22,32 @@
   color: $crossColor;
 }
 
-.modal-title{
-  color: $titleText;
-  @include commonBtnText;
-  font-weight: bold;
-  font-size: 42px;
-  line-height: 49px;
+.modal {
+  padding: 30px 40px 30px 40px;
+  border-radius: 30px;
+  background: #DADADA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 400px;
+  max-width: 850px;
+  position: relative;
+  overflow: auto;
+
+
+  &__title {
+    color: $titleText;
+    @include commonBtnText;
+    font-weight: bold;
+    font-size: 42px;
+    line-height: 49px;
+  }
+
+  &__error {
+    color: red;
+    font-size: 24px;
+    text-align: center;
+    padding: .3em;
+  }
 }
 
-.modal-error{
-  color: red;
-  font-size: 24px;
-  text-align: center;
-  padding: .3em;
-}

@@ -74,7 +74,7 @@ export class Form {
      *      @returns array of created DOM elements
      * */
 
-    constructor(classListObj = "form", attributesObj = {}) {
+    constructor(classListObj = {form: "form"}, attributesObj = {}) {
         this.classListObj = classListObj;
         this.attributesObj = attributesObj;
         this.elements = {
@@ -140,10 +140,7 @@ export class Form {
             label.append(select);
             return label
         }
-
-
             return select
-
     }
 
     renderTextarea(labelText,
@@ -245,19 +242,19 @@ export class VisitForm extends Form {
             card:{
                 fullName:{
                     label: "ФИО: ",
-                    value: elements.fullName.children[0].value
+                    elementValue: elements.fullName.children[0].value
                 },
                 priority:{
                     label:"Срочность: ",
-                    value: elements.priority.children[0].value
+                    elementValue: elements.priority.children[0].value
                 },
                 reason: {
                     label:"Цель визита: ",
-                    value: elements.reason.children[0].value
+                    elementValue: elements.reason.children[0].value
                 },
                 description:{
                     label:"Описание визита: ",
-                    value: elements.description.children[0].value
+                    elementValue: elements.description.children[0].value
                 }
             }
         };
@@ -292,12 +289,12 @@ export class VisitFormTherapist extends VisitForm{
 
         defaultFormElements.card.age = {
             label: "Возраст: ",
-            value: elements.age.children[0].value
+            elementValue: elements.age.children[0].value
         };
 
         defaultFormElements.card.doctor = {
             label: "Доктор: ",
-            value: "Терапевт"
+            elementValue: "Терапевт"
         }
 
         VisitForm.insertElementNextToAnotherElement(elements.reason, elements.age);
@@ -328,12 +325,12 @@ export class VisitFormDentist extends VisitForm {
 
         defaultFormElements.card.previousVisitDate ={
             label:"Дата последнего визита: ",
-            value: elements.previousVisitDate.children[0].value
+            elementValue: elements.previousVisitDate.children[0].value
         }
 
         defaultFormElements.card.doctor = {
             label: "Доктор: ",
-            value: "Стоматолог"
+            elementValue: "Стоматолог"
         }
 
         VisitForm.insertElementNextToAnotherElement(elements.reason, elements.previousVisitDate);
@@ -423,27 +420,27 @@ export class VisitFormCardiologist extends VisitForm {
 
         defaultFormElements.card.bloodPressure = {
             label: "Обычное давление: ",
-            value: elements.bloodPressure.children[0].value
+            elementValue: elements.bloodPressure.children[0].value
         }
 
          defaultFormElements.card.bmi = {
             label: "Индекс массы тела: ",
-            value: elements.bmi.children[0].value
+             elementValue: elements.bmi.children[0].value
         }
 
          defaultFormElements.card.heartDiseases = {
             label: "Заболевания сердечно-сосудистой системы: ",
-            value: elements.heartDiseases.children[0].value
+             elementValue: elements.heartDiseases.children[0].value
         }
 
          defaultFormElements.card.age = {
             label: "Возраст: ",
-            value: elements.age.children[0].value
+             elementValue: elements.age.children[0].value
         }
 
         defaultFormElements.card.doctor = {
             label: "Доктор: ",
-            value: "Кардиолог"
+            elementValue: "Кардиолог"
         }
 
 

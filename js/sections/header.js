@@ -55,8 +55,8 @@ function createLoginModal(parent) {
         modalWrapper: 'modal-wrapper',
         modal: 'modal',
         crossButton: 'cross',
-        title: 'modal-title',
-        submitButton: 'btn'
+        title: 'modal__title',
+        submitButton: ['btn', "submit-btn"]
     }).render();
 }
 
@@ -111,13 +111,13 @@ function renderCards(parent, cards) {
     noVisitMessage.hidden = true;
 
     cards.forEach(card => {
-      if(card.doctor.value === "Терапевт"){
+      if(card.doctor.elementValue === "Терапевт"){
           const therapistCard = new VisitTherapist(card).renderCard();
           parent.append(therapistCard.cardContainer);
-      }else if(card.doctor.value === "Кардиолог"){
+      }else if(card.doctor.elementValue === "Кардиолог"){
             const cardiologistCard = new VisitCardiologist(card).renderCard();
             parent.append(cardiologistCard.cardContainer);
-      } else if(card.doctor.value === "Стоматолог"){
+      } else if(card.doctor.elementValue === "Стоматолог"){
           const dentistCard = new VisitDentist(card).renderCard();
           parent.append(dentistCard.cardContainer);
       }
@@ -137,28 +137,25 @@ async function createVisitForm() {
         modalWrapper: 'modal-wrapper',
         modal: 'modal',
         crossButton: 'cross',
-        title: 'modal-title',
-        submitButton: 'btn'
+        title: 'modal__title',
+        submitButton: ['btn'],
+        form: "form"
     }).render()
 
     const {modalWrapper, modal} = visitModal;
 
-    const doctorSelect = new DOMElement("select", "form__select").render();
-    let optionsTextArr = ["Выберите врача: ", "Терапевт", "Стоматолог", "Кардиолог"];
-    let optionsValueArr = ["", "therapist", "dentist", "cardiologist"];
-    let optionsArr = []
-    for (let i = 0; i < optionsTextArr.length; i++) {
-        let option = new DOMElement("option", "form__option", optionsTextArr[i], {
-            value: optionsValueArr[i]
-        }).render()
-        optionsArr.push(option)
-        doctorSelect.append(option);
-    }
+    let form = new Form();
 
+    let doctorSelect = form.renderSelect("Выберите врача: ",
+        ["", "therapist", "dentist", "cardiologist"],
+        {label: "form__label", select: "form__select", options: "form__options"},
+        ["Выберите врача: ", "Терапевт", "Стоматолог", "Кардиолог"])
 
-    optionsArr.forEach(item => item.disabled = item.value === "");
+    doctorSelect.children[0].children[0].disabled = true;
 
-    modal.append(doctorSelect);
+    form = form.renderForm()
+    form.append(doctorSelect)
+    modal.append(form);
 
     let doctorForm = await new Promise((resolve, reject) => {
         doctorSelect.addEventListener("change", event => {
@@ -207,6 +204,7 @@ function renderChosenDoctorForm(modal, chosenDoctor) {
 }
 
 async function createVisitCard(formElements) {
+    console.log(formElements)
     let visitDetails = formElements.card
     let formElementsObj = Object.assign(formElements)
 
@@ -215,10 +213,10 @@ async function createVisitCard(formElements) {
     delete formElementsObj.submitButton
 
     for (let [key, value] of Object.entries(formElementsObj)) {
-
-            visitDetails[key].value = formElementsObj[key].children[0].value;
+            visitDetails[key].elementValue = formElementsObj[key].children[0].value;
     }
 
+    console.log(visitDetails)
     let response = await API.saveCard(visitDetails);
     let cardSection = document.querySelector(".visit-section");
     renderCards(cardSection, response)
