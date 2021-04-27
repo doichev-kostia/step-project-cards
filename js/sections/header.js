@@ -7,6 +7,31 @@ import {ModalLogIn, ModalCreateVisit, ModalShowCard} from "../components/Modal.j
 
 const root = document.querySelector('#root');
 
+function createFilter(parent){
+    let select = new DOMElement('select', 'filterSelect', 'Выберите врача').render()
+    let selectConf = new DOMElement('button', 'selectConf', 'ok').render()
+    parent.prepend(select, selectConf);
+
+    let optionAll = new DOMElement('option', 'filterOption', 'all').render()
+    let optionDentist = new DOMElement('option', 'filterOption', 'dentist').render()
+    let optionCardiologist = new DOMElement('option', 'filterOption', 'cardiologist').render()
+    let optionTherapist = new DOMElement('option', 'filterOption', 'therapist').render()
+    select.append(optionAll, optionDentist, optionCardiologist, optionTherapist)
+
+    selectConf.addEventListener('click', async () => {
+        document.querySelectorAll('.card').forEach(card => card.classList.remove('hidden'))
+        let doctor = select.value
+        await API.getAllCards().then(response => response.forEach(function (object) {
+            if (doctor === 'all') {
+                return
+            }
+            if (object.doctor !== doctor) {
+                document.getElementById(`${object.id}`).classList.add('hidden');
+            }
+        }))
+    })
+}
+
 export default async function createHeaderSection() {
     const header = new DOMElement("header", ["header", "wrapper"]).render();
     const logoWrapper = new DOMElement("a", "logo-wrapper", "", {href: "#"}).render();
@@ -36,6 +61,7 @@ export default async function createHeaderSection() {
         } else {
             noVisitMessage.hidden = false;
         }
+        createFilter(main)
     }
     await createVisitModal(modalElements);
 }
@@ -139,7 +165,7 @@ async function createVisitCard(formElements) {
     let visitDetails = {}
     formElements.forEach(item => {
         let itemTag = item.tagName.toLowerCase();
-
+        // debugger
         if (itemTag === "div") {
             [...item.children].forEach(element => {
                 if (element.tagName.toLowerCase() !== "label") {
@@ -156,6 +182,8 @@ async function createVisitCard(formElements) {
             item.children.forEach(elem => {
                 visitDetails[elem.name] = elem.value;
             })
+        } else if (itemTag === "select"){
+            visitDetails[item.name] = item.value;
         }
     })
 
@@ -458,3 +486,6 @@ function cardiologistSet(flag, parent, doctor, form) {
         deleteDoctorSet(parent, doctor)
     }
 }
+
+
+
