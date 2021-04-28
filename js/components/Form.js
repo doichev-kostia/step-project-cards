@@ -172,13 +172,18 @@ export class Form {
 export class VisitForm extends Form {
 
     static insertElementNextToAnotherElement(staticElement, elementToInsert) {
-        staticElement.after(elementToInsert);
+        if(!Array.isArray(elementToInsert)){
+            elementToInsert = [elementToInsert]
+        }
+        elementToInsert.forEach(item =>{
+            staticElement.after(item);
+        })
     }
 
     renderVisitForm() {
         const {classListObj, attributesObj, elements} = this;
 
-        elements.fullName = super.renderInput("ФИО",
+        elements.fullName = super.renderInput("*ФИО: ",
             {label: classListObj.label, input: classListObj.input},
             "",
             {
@@ -188,7 +193,7 @@ export class VisitForm extends Form {
                 }
             });
 
-        elements.priority = super.renderSelect("Срочность: ",
+        elements.priority = super.renderSelect("*Срочность: ",
             ["","low", "normal", "high"],
             {label: classListObj.label, select: classListObj.select, options: classListObj.options},
             ["Выберите срочность: ", "Обычная", "Приоритетная", "Неотложная"],
@@ -201,7 +206,7 @@ export class VisitForm extends Form {
 
         elements.priority.children[0].children[0].disabled = true;
 
-        elements.reason = super.renderInput("Цель визита",
+        elements.reason = super.renderInput("*Цель визита: ",
             {label: classListObj.label, input: classListObj.input},
             "",
             {
@@ -271,7 +276,7 @@ export class VisitFormTherapist extends VisitForm{
         const {classListObj, textObj, attributesObj, elements} = this;
         const defaultFormElements = super.renderVisitForm()
 
-        elements.age = super.renderInput("Возраст   : ",
+        elements.age = super.renderInput("*Возраст: ",
             {input: classListObj.input, label: classListObj.label},
             "",
             {
@@ -312,7 +317,7 @@ export class VisitFormDentist extends VisitForm {
         const {classListObj, textObj, attributesObj, elements} = this;
         const defaultFormElements = super.renderVisitForm()
 
-        elements.previousVisitDate = super.renderInput("Дата последнего визита: ", //date of the previous appointment
+        elements.previousVisitDate = super.renderInput("*Дата последнего визита: ", //date of the previous appointment
             {input: classListObj.input, label: classListObj.label},
             "",
             {
@@ -346,7 +351,7 @@ export class VisitFormCardiologist extends VisitForm {
         const {classListObj, textObj, attributesObj, elements} = this;
         const defaultFormElements = super.renderVisitForm();
 
-        elements.bloodPressure = super.renderInput("Обычное давление: ",
+        elements.bloodPressure = super.renderInput("*Обычное давление: ",
             {input: classListObj.input, label: classListObj.label},
             "",
             {
@@ -362,7 +367,7 @@ export class VisitFormCardiologist extends VisitForm {
                 }
             });
 
-        elements.bmi = super.renderInput("Индекс массы тела: ", /*body mass index*/
+        elements.bmi = super.renderInput("*Индекс массы тела: ", /*body mass index*/
             {input: classListObj.input, label: classListObj.label},
             "",
             {
@@ -378,7 +383,7 @@ export class VisitFormCardiologist extends VisitForm {
                 }
             });
 
-        elements.heartDiseases = super.renderInput("Перенесенные заболевания сердечно-сосудистой системы",
+        elements.heartDiseases = super.renderInput("*Перенесенные заболевания сердечно-сосудистой системы: ",
             {input: classListObj.input, label: classListObj.label},
             "",
             {
@@ -388,7 +393,7 @@ export class VisitFormCardiologist extends VisitForm {
                 }
             });
 
-        elements.age = super.renderInput("Возраст   : ",
+        elements.age = super.renderInput("*Возраст: ",
             {input: classListObj.input, label: classListObj.label},
             "",
             {
@@ -444,7 +449,8 @@ export class VisitFormCardiologist extends VisitForm {
         }
 
 
-        VisitForm.insertElementNextToAnotherElement(elements.reason, elements.previousVisitDate);
+        VisitForm.insertElementNextToAnotherElement(elements.reason,
+            [elements.bmi,  elements.bloodPressure, elements.heartDiseases, elements.age]);
         return {
             ...defaultFormElements,
             bloodPressure: elements.bloodPressure,

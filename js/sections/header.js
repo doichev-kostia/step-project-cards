@@ -91,7 +91,7 @@ async function verifyLoginData(modalElements) {
                 resolve(true)
             } catch (e) {
                 console.error(e)
-                let error = new DOMElement('span', 'modal-error', 'Incorrect username or password').render()
+                let error = new DOMElement('span', 'modal__error', 'Incorrect username or password').render()
                 form.insertAdjacentElement('beforebegin', error)
                 setTimeout(() => {
                     error.remove()
@@ -131,6 +131,8 @@ function createVisitModal(modalElements) {
     })
 }
 
+
+
 async function createVisitForm() {
 
     const visitModal = new ModalCreateVisit(root, "Создать визит", {
@@ -146,7 +148,7 @@ async function createVisitForm() {
 
     let form = new Form();
 
-    let doctorSelect = form.renderSelect("Выберите врача: ",
+    let doctorSelect = form.renderSelect("*Выберите врача: ",
         ["", "therapist", "dentist", "cardiologist"],
         {label: "form__label", select: "form__select", options: "form__options"},
         ["Выберите врача: ", "Терапевт", "Стоматолог", "Кардиолог"])
@@ -165,12 +167,45 @@ async function createVisitForm() {
 
     doctorForm.submitButton.addEventListener("click", async (event) => {
         event.preventDefault();
-        await createVisitCard(doctorForm);
-        modalWrapper.remove()
+        if(await validateData(doctorForm)){
+            let error = [...doctorForm.form.children].filter(item => item.tagName.toLowerCase() === "span")
+            if(error.length < 1){
+                await createVisitCard(doctorForm);
+                modalWrapper.remove()
+            }else {
+                error.remove()
+            }
+        }else{
+           let error = [...doctorForm.form.children].filter(item => item.tagName.toLowerCase() === "span")
+           if(error.length < 1){
+            error = new DOMElement("span", "modal__error", "Заполните пожалуйста все поля с *").render();
+            doctorForm.submitButton.before(error)
+           }
+        }
     })
 
 
     modal.append(doctorForm.form)
+}
+
+async function validateData(elements) {
+    let inputs = []
+    for(let [objectKey, objectValue] of Object.entries(elements)){
+        if(objectKey !== "card"){
+            if (objectValue.tagName.toLowerCase() === "label"){
+                if(objectValue.children[0].tagName.toLowerCase() !== "textarea"){
+                    inputs.push(...objectValue.children);
+                }
+            }
+        }
+    }
+
+    for (let i = 0; i < inputs.length; i++) {
+        if (inputs[i].value.length < 1){
+            return false
+        }
+    }
+    return true
 }
 
 function renderChosenDoctorForm(modal, chosenDoctor) {
@@ -204,7 +239,6 @@ function renderChosenDoctorForm(modal, chosenDoctor) {
 }
 
 async function createVisitCard(formElements) {
-    console.log(formElements)
     let visitDetails = formElements.card
     let formElementsObj = Object.assign(formElements)
 
@@ -216,7 +250,6 @@ async function createVisitCard(formElements) {
             visitDetails[key].elementValue = formElementsObj[key].children[0].value;
     }
 
-    console.log(visitDetails)
     let response = await API.saveCard(visitDetails);
     let cardSection = document.querySelector(".visit-section");
     renderCards(cardSection, response)

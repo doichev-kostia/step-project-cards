@@ -20,9 +20,11 @@
   right: 10px;
   top: 10px;
   color: $crossColor;
+  font-size: 24px;
 }
 
 .modal {
+  max-height: 500px;
   padding: 30px 40px 30px 40px;
   border-radius: 30px;
   background: #DADADA;
