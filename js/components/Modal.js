@@ -1,7 +1,6 @@
 import DOMElement from "./DOMElement.js"
 import API from "./API.js"
 import {Form, VisitForm} from "./Form.js";
-// import {visitTest} from "../sections/header.js";
 
 export class Modal {
     constructor(parent, titleText, CSSClassObject) {
@@ -88,6 +87,46 @@ export class ModalLogIn extends Modal {
         }
     }
 
+    static async verifyLogInData(elements) {
+        const {
+            form,
+            modalWrapper,
+            submitButton,
+            emailInput,
+            passwordInput,
+            visitButton,
+            logInButton
+        } = elements;
+
+        return new Promise((resolve, reject) => {
+            submitButton.addEventListener('click', async (event) => {
+                event.preventDefault();
+
+                const credentials = {
+                    email: emailInput.value,
+                    password: passwordInput.value,
+                }
+                const {email, password} = credentials;
+
+                try {
+                    await API.login({email, password});
+
+                    modalWrapper.remove()
+                    logInButton.replaceWith(visitButton)
+                    resolve(true)
+                } catch (e) {
+                    console.error(e)
+
+                    let error = new DOMElement('span', 'modal__error', 'Incorrect username or password').render();
+                    form.insertAdjacentElement('beforebegin', error);
+                    setTimeout(() => {
+                        error.remove()
+                    }, 2000)
+                    resolve(false)
+                }
+            })
+        })
+    }
 }
 
 export class ModalCreateVisit extends Modal {
@@ -100,6 +139,7 @@ export class ModalCreateVisit extends Modal {
         parent.append(modalWrapper)
         modalWrapper.append(modal)
         modal.prepend(crossButton, title)
+
         this.closeModal()
         return {
             modalWrapper,
@@ -107,10 +147,5 @@ export class ModalCreateVisit extends Modal {
             crossButton,
             title,
         }
-    }
-}
-
-export class ModalShowCard {
-    constructor() {
     }
 }

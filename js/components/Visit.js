@@ -56,12 +56,62 @@ export class Visit {
         }
     }
 
+    static toggleVisibility(toHide, cardId){
+        /**
+         * toHide argument is a boolean value. If true - card will be hidden, if false - shown;
+         * */
+        let card;
+
+        if(cardId.includes("#")){
+           card = document.querySelector(cardId);
+        }else{
+            card = document.querySelector(`#${cardId}`);
+        }
+
+        card.hidden = toHide;
+    }
+
     static insertElementNextToAnotherElement(staticElement, elementToInsert) {
         if(!Array.isArray(elementToInsert)){
             elementToInsert = [elementToInsert]
         }
+
         elementToInsert.forEach(item =>{
             staticElement.after(item);
+        })
+    }
+
+    static async createVisitCard(formElements){
+        let visitDetails = formElements.card
+        let formElementsObj = Object.assign(formElements)
+
+        delete formElementsObj.card
+        delete formElementsObj.form
+        delete formElementsObj.submitButton
+
+        for (let [key, value] of Object.entries(formElementsObj)) {
+            visitDetails[key].elementValue = formElementsObj[key].children[0].value;
+        }
+
+        return await API.saveCard(visitDetails);
+    }
+
+    static async renderCards(parent, cards){
+        if (!Array.isArray(cards)) {
+            cards = [cards]
+        }
+
+        cards.forEach(card => {
+            if(card.doctor.elementValue === "Терапевт"){
+                const therapistCard = new VisitTherapist(card).renderCard();
+                parent.append(therapistCard.cardContainer);
+            }else if(card.doctor.elementValue === "Кардиолог"){
+                const cardiologistCard = new VisitCardiologist(card).renderCard();
+                parent.append(cardiologistCard.cardContainer);
+            } else if(card.doctor.elementValue === "Стоматолог"){
+                const dentistCard = new VisitDentist(card).renderCard();
+                parent.append(dentistCard.cardContainer);
+            }
         })
     }
 

@@ -1,6 +1,8 @@
 import DOMElement from "./DOMElement.js"
 
-const defaultCSSStyles = {
+/** Object with default CSS classes */
+const defaultCSSClasses = {
+    form: "form",
     input: "form__input",
     label: "form__label",
     select: "form__select",
@@ -8,88 +10,115 @@ const defaultCSSStyles = {
     textarea: "form__textarea"
 }
 
-
+/** Class creates a form */
 export class Form {
-    /**
-     * @requires:
-     * classList - string (can be array of strings),
-     * attributesObj - object {attributeName: attributeValue}
+    /**@constructor
+     * Creates DOM Element form
+     *              @param {object} [classListObj] - object with CSS classes like: {tagName: "CSS class"} arrays can be used as values:
+     *              {
+     *                       form: "form",
+     *                       input: "form__input",
+     *                       label: "form__label",
+     *                       select: "form__select",
+     *                       options: "form__option",
+     *                       textarea: "form__textarea"
+     *                   }
+     *                   >>> (NOT used in renderForm(), renderInput(), renderSelect(), renderTextarea() methods) <<<
+     *
+     *              @param {object} [attributesObj] - object that represents attributes of the created element{
+     *                          tagName: {
+     *                                      attributeName: attributeValue
+     *                                   }
+     *                        }
      *
      * @method renderForm():
-     * creates DOM element <form> and returns it
+     *
+     *      @returns {object} DOM element <form>
+     *
+     *
      *
      * @method renderInput():
-     *      @requires:
-     *      labelText - string (in case you need tag <label> if not, put empty string "")
-     *      classListObj - object with CSS classes (array of strings can be used as a value){
+     *
+     *     Creates <input> or <label> with <input> inside of it
+     *
+     *     @param {string} [labelText] - Text that will be in <label> (in case you don't need tag <label> put empty string "")
+     *     @param {object} [classListObj] - object with CSS classes (array of strings can be used as a value){
      *          input: ["CSS class1", "CSS class2"],
      *          label: "CSS class"
      *      },
-     *      placeholder - string(for placeholder attribute in input if don't need it, put empty string ""),
-     *      attributesObj - object  {attributeName: attributeValue},
-     *      position - object that represents the position the element needs to be inserted in {
-     *          parent: DOM element,
-     *          position: "afterbegin" || "beforebegin" || "afterend" || "beforeend"
-     *      }
-     *      @returns created DOM elements
+     *
+     *      @param {string} [placeholder] - text that will be in the input (if don't need it, put empty string ""),
+     *
+     *      @param {object} [attributesObj] - object that represents attributes of the created element {
+     *                                  tagName:{
+     *                                  attributeName: attributeValue
+     *                                  }
+     *                             },
+     *
+     *
+     *      @returns {object} created DOM element <label> or <input> (if the label argument was an empty string)
+     *
+     *
      *
      * @method renderSelect():
-     *      @requires:
-     *      labelText - string (in case you need tag <label> if not, put empty string ""),
-     *      optionValues - array of strings. value attribute for tag <option>,
-     *      classListObj - object with CSS classes (array of strings can be used as a value){
+     *
+     *      Creates <label> (if first argument is not an empty string) <select> with <options>
+     *
+     *     @param {string} [labelText] - Text that will be in <label> (in case you don't need tag <label> put empty string "")
+     *     @param {object} [classListObj] - object with CSS classes (array of strings can be used as a value){
+     *          input: ["CSS class1", "CSS class2"],
      *          label: "CSS class"
-     *          select: ["CSS class1", "CSS class2"],
-     *          options: "CSS class"
      *      },
-     *      optionsTextArr - array of strings. Number of options is based on its length,
-     *      attributesObj - object {
-     *          select: {
-     *              attributeName: attributeValue
-     *          },
-     *         label:{
-     *             attributeName: attributeValue
-     *         },
-     *         options: {
-     *             attributeName: attributeValue
-     *         }
-     *      }
-     *      @returns array of created DOM elements
+     *
+     *      @param {string} [placeholder] - text that will be in the input (if don't need it, put empty string ""),
+     *
+     *      @param {object} [attributesObj] - object that represents attributes of the created element {
+     *                                  tagName:{
+     *                                  attributeName: attributeValue
+     *                                  }
+     *                             },
+     *
+     *      @returns created DOM Element <label> or <select> (if the label argument was an empty string)
+     *
+     *
      *
      * @method renderTextarea():
-     *      @requires:
-     *      labelText - string (in case you need tag <label> if not, put empty string ""),
-     *      classListObj - object with CSS classes (array of strings can be used as a value){
+     *
+     *      Creates <label> and <textarea> inside of it
+     *
+     *     @param {string} [labelText] - Text that will be in <label> (in case you don't need tag <label> put empty string "")
+     *     @param {object} [classListObj] - object with CSS classes (array of strings can be used as a value){
+     *          input: ["CSS class1", "CSS class2"],
      *          label: "CSS class"
-     *          textarea: "CSS class"
      *      },
-     *      attributesObj - object  {
-     *          label: {
-     *               attributeName: attributeValue
-     *          },
-     *          textarea: {
-     *              attributeName: attributeValue
-     *          }
-     *      }
-     *      @returns array of created DOM elements
+     *
+     *      @param {string} [placeholder] - text that will be in the input (if don't need it, put empty string ""),
+     *
+     *      @param {object} [attributesObj] - object that represents attributes of the created element {
+     *                                  tagName:{
+     *                                  attributeName: attributeValue
+     *                                  }
+     *                             },
+     *
+     *      @returns created DOM Element <label>
+     *
      * */
 
-    constructor(classListObj = {form: "form"}, attributesObj = {}) {
+    constructor(classListObj = defaultCSSClasses, attributesObj = {}) {
         this.classListObj = classListObj;
         this.attributesObj = attributesObj;
         this.elements = {
-            form: new DOMElement("form", classListObj.form, "").render()
+            form: new DOMElement("form", classListObj.form, "", attributesObj.form).render()
         }
     }
 
-    renderForm(){
-        let {classListObj,  attributesObj, elements} = this;
+    renderForm() {
+        let {elements} = this;
         return elements.form
     }
 
-
     renderInput(labelText,
-                classListObj = defaultCSSStyles,
+                classListObj = defaultCSSClasses,
                 placeholder,
                 attributesObj = {},
     ) {
@@ -117,7 +146,7 @@ export class Form {
 
     renderSelect(labelText,
                  optionValues,
-                 classListObj = defaultCSSStyles,
+                 classListObj = defaultCSSClasses,
                  optionsTextArr,
                  attributesObj = {},
     ) {
@@ -140,11 +169,11 @@ export class Form {
             label.append(select);
             return label
         }
-            return select
+        return select
     }
 
     renderTextarea(labelText,
-                   classListObj = defaultCSSStyles,
+                   classListObj = defaultCSSClasses,
                    textareaDescription,
                    attributesObj = {},
     ) {
@@ -169,14 +198,100 @@ export class Form {
 
 }
 
+/** Class creates a form to create a visit */
 export class VisitForm extends Form {
+    /**@constructor
+     * Creates DOM Element form for visit
+     *              @param {object} [classListObj] - object with CSS classes like: {tagName: "CSS class"} arrays can be used as values:
+     *              {
+     *                       form: "form",
+     *                       input: "form__input",
+     *                       label: "form__label",
+     *                       select: "form__select",
+     *                       options: "form__option",
+     *                       textarea: "form__textarea"
+     *                   }
+     *                   >>> ( used in renderForm(), renderInput(), renderSelect(), renderTextarea() methods) <<<
+     *
+     *              @param {object} [attributesObj] - object that represents attributes of the created element{
+     *                          tagName: {
+     *                                      attributeName: attributeValue
+     *                                   }
+     *                        }
+     *
+     *
+     *
+     * @method validateData()
+     *
+     *         Checks if the inputs are empty or not
+     *
+     *         @param {object} elements with formElements. All inputs should be used inside of <label>
+     *
+     *         @returns {boolean}
+     *         True - if all inputs (except textarea are filled with text)
+     *         False - if one of the inputs (except textarea) is empty
+     *
+     *
+     *
+     *  @method insertElementNextToAnotherElement()
+     *
+     *          Inserts one element next to another one
+     *
+     *          @param {DOMElement} staticElement - DOM Element according to which another DOM Element will be inserted
+     *          @param {DOMElement} elementToInsert - DOM Element or array of DOM Elements
+     *          @param {string} [place] - "after" or "before" (insert element after or before the staticElement)
+     *
+     *
+     *
+     *  @method renderVisitForm()
+     *
+     *          Creates form with common fields to every doctor:
+     *          full name, priority of the visit, reason, description and submit button.
+     *
+     *          Appends all the created elements to <form>
+     *
+     *          @returns {object} created DOM elements.
+     *          Key "card" represents the way data will be shown in a visit card
+     *
+     *
+     *
+     *  @method deleteSelf()
+     *
+     *          Deletes created form
+     *
+     * */
 
-    static insertElementNextToAnotherElement(staticElement, elementToInsert) {
-        if(!Array.isArray(elementToInsert)){
+    static async validateData(elements) {
+        let inputs = []
+        for (let [objectKey, objectValue] of Object.entries(elements)) {
+            if (objectKey !== "card") {
+                if (objectValue.tagName.toLowerCase() === "label") {
+                    if (objectValue.children[0].tagName.toLowerCase() !== "textarea") {
+                        inputs.push(...objectValue.children);
+                    }
+                }
+            }
+        }
+
+        for (let i = 0; i < inputs.length; i++) {
+            if (inputs[i].value.length < 1) {
+                return false
+            }
+        }
+        return true
+    }
+
+    static insertElementNextToAnotherElement(staticElement, elementToInsert, place = "after") {
+        if (!Array.isArray(elementToInsert)) {
             elementToInsert = [elementToInsert]
         }
-        elementToInsert.forEach(item =>{
-            staticElement.after(item);
+
+        if (!staticElement || !elementToInsert){
+            return false
+        }
+
+        elementToInsert.forEach(item => {
+            staticElement[place](item);
         })
     }
 
@@ -194,7 +309,7 @@ export class VisitForm extends Form {
             });
 
         elements.priority = super.renderSelect("*Срочность: ",
-            ["","low", "normal", "high"],
+            ["", "low", "normal", "high"],
             {label: classListObj.label, select: classListObj.select, options: classListObj.options},
             ["Выберите срочность: ", "Обычная", "Приоритетная", "Неотложная"],
             {
@@ -243,36 +358,67 @@ export class VisitForm extends Form {
             priority: elements.priority,
             reason: elements.reason,
             description: elements.description,
-            submitButton:  elements.submitButton,
-            card:{
-                fullName:{
+            submitButton: elements.submitButton,
+            card: {
+                fullName: {
                     label: "ФИО: ",
                     elementValue: elements.fullName.children[0].value
                 },
-                priority:{
-                    label:"Срочность: ",
+                priority: {
+                    label: "Срочность: ",
                     elementValue: elements.priority.children[0].value
                 },
                 reason: {
-                    label:"Цель визита: ",
+                    label: "Цель визита: ",
                     elementValue: elements.reason.children[0].value
                 },
-                description:{
-                    label:"Описание визита: ",
+                description: {
+                    label: "Описание визита: ",
                     elementValue: elements.description.children[0].value
                 }
             }
         };
     }
 
-    deleteSelf(){
+    deleteSelf() {
         this.elements.form.remove();
     }
 
 }
 
-export class VisitFormTherapist extends VisitForm{
-    renderDoctorSet(){
+/** Class creates a form to create a visit to the specific doctor */
+export class VisitFormTherapist extends VisitForm {
+    /** @constructor
+     * Creates DOM Element form for Therapist
+     *
+     *              @param {object} [classListObj] - object with CSS classes like: {tagName: "CSS class"} arrays can be used as values:
+     *              {
+     *                       form: "form",
+     *                       input: "form__input",
+     *                       label: "form__label",
+     *                       select: "form__select",
+     *                       options: "form__option",
+     *                       textarea: "form__textarea"
+     *                   }
+     *                   >>> ( used in renderForm(), renderInput(), renderSelect(), renderTextarea() methods) <<<
+     *
+     *              @param {object} [attributesObj] - object that represents attributes of the created element{
+     *                          tagName: {
+     *                                      attributeName: attributeValue
+     *                                   }
+     *                        }
+     *
+     *
+     *
+     * @method renderDoctorSet()
+     *
+     *          Creates age field and inserts it after reason field.
+     *
+     *          @returns {object} with created DOM elements and the default ones(those which are created in class VisitForm)
+     *
+     * */
+
+    renderDoctorSet() {
         const {classListObj, textObj, attributesObj, elements} = this;
         const defaultFormElements = super.renderVisitForm()
 
@@ -304,7 +450,7 @@ export class VisitFormTherapist extends VisitForm{
 
         VisitForm.insertElementNextToAnotherElement(elements.reason, elements.age);
 
-        return{
+        return {
             ...defaultFormElements,
             age: elements.age,
         }
@@ -312,7 +458,38 @@ export class VisitFormTherapist extends VisitForm{
 
 }
 
+/** Class creates a form to create a visit to the specific doctor */
 export class VisitFormDentist extends VisitForm {
+    /** @constructor
+     * * Creates DOM Element form for Dentist
+     *
+     *              @param {object} [classListObj] - object with CSS classes like: {tagName: "CSS class"} arrays can be used as values:
+     *              {
+     *                       form: "form",
+     *                       input: "form__input",
+     *                       label: "form__label",
+     *                       select: "form__select",
+     *                       options: "form__option",
+     *                       textarea: "form__textarea"
+     *                   }
+     *                   >>> ( used in renderForm(), renderInput(), renderSelect(), renderTextarea() methods) <<<
+     *
+     *              @param {object} [attributesObj] - object that represents attributes of the created element{
+     *                          tagName: {
+     *                                      attributeName: attributeValue
+     *                                   }
+     *                        }
+     *
+     *
+     *
+     * @method renderDoctorSet()
+     *
+     *           Creates previous appointment date field and inserts it after reason field.
+     *
+     *           @returns {object} with created DOM elements and the default ones(those which are created in class VisitForm)
+     *
+     * */
+
     renderDoctorSet() {
         const {classListObj, textObj, attributesObj, elements} = this;
         const defaultFormElements = super.renderVisitForm()
@@ -328,8 +505,8 @@ export class VisitFormDentist extends VisitForm {
                 }
             })
 
-        defaultFormElements.card.previousVisitDate ={
-            label:"Дата последнего визита: ",
+        defaultFormElements.card.previousVisitDate = {
+            label: "Дата последнего визита: ",
             elementValue: elements.previousVisitDate.children[0].value
         }
 
@@ -346,7 +523,44 @@ export class VisitFormDentist extends VisitForm {
     }
 }
 
+/** Class creates a form to create a visit to the specific doctor */
 export class VisitFormCardiologist extends VisitForm {
+    /** @constructor
+     * * Creates DOM Element form for Dentist
+     *
+     *              @param {object} [classListObj] - object with CSS classes like: {tagName: "CSS class"} arrays can be used as values:
+     *              {
+     *                       form: "form",
+     *                       input: "form__input",
+     *                       label: "form__label",
+     *                       select: "form__select",
+     *                       options: "form__option",
+     *                       textarea: "form__textarea"
+     *                   }
+     *                   >>> ( used in renderForm(), renderInput(), renderSelect(), renderTextarea() methods) <<<
+     *
+     *              @param {object} [attributesObj] - object that represents attributes of the created element{
+     *                          tagName: {
+     *                                      attributeName: attributeValue
+     *                                   }
+     *                        }
+     *
+     *
+     *
+     * @method renderDoctorSet()
+     *
+     *           Creates such fields:
+     *              blood pressure
+     *              body mass index(bmi)
+     *              heart disease
+     *              age
+     *
+     *           Inserts these fields after reason field
+     *
+     *           @returns {object} with created DOM elements and the default ones(those which are created in class VisitForm)
+     *
+     * */
+
     renderDoctorSet() {
         const {classListObj, textObj, attributesObj, elements} = this;
         const defaultFormElements = super.renderVisitForm();
@@ -428,19 +642,19 @@ export class VisitFormCardiologist extends VisitForm {
             elementValue: elements.bloodPressure.children[0].value
         }
 
-         defaultFormElements.card.bmi = {
+        defaultFormElements.card.bmi = {
             label: "Индекс массы тела: ",
-             elementValue: elements.bmi.children[0].value
+            elementValue: elements.bmi.children[0].value
         }
 
-         defaultFormElements.card.heartDiseases = {
+        defaultFormElements.card.heartDiseases = {
             label: "Заболевания сердечно-сосудистой системы: ",
-             elementValue: elements.heartDiseases.children[0].value
+            elementValue: elements.heartDiseases.children[0].value
         }
 
-         defaultFormElements.card.age = {
+        defaultFormElements.card.age = {
             label: "Возраст: ",
-             elementValue: elements.age.children[0].value
+            elementValue: elements.age.children[0].value
         }
 
         defaultFormElements.card.doctor = {
@@ -450,7 +664,7 @@ export class VisitFormCardiologist extends VisitForm {
 
 
         VisitForm.insertElementNextToAnotherElement(elements.reason,
-            [elements.bmi,  elements.bloodPressure, elements.heartDiseases, elements.age]);
+            [elements.bmi, elements.bloodPressure, elements.heartDiseases, elements.age]);
         return {
             ...defaultFormElements,
             bloodPressure: elements.bloodPressure,
