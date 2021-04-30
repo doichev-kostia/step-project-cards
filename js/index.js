@@ -6,6 +6,7 @@ import Footer from "./sections/footer.js"
 import createHeaderSection from "./sections/header.js";
 import createMainSection from "./sections/main.js";
 import createFooterSection from "./sections/footer.js";
+import {createFilter} from './components/filter.js'
 
 if(sessionStorage.token){
     createHeaderSection(true)
