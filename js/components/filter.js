@@ -24,7 +24,6 @@ export function createFilter(parent) {
     let optionCardiologist = new DOMElement('option', 'filterOption', 'Кардиолог').render()
     let optionTherapist = new DOMElement('option', 'filterOption', 'Терапевт').render()
     select.append(optionAll, optionDentist, optionCardiologist, optionTherapist)
-    //конец элементов фильтра поиска по врачу
 
     //элементы фильтра поиска срочности
     let priorityAll = new DOMElement('option', 'filterOption', 'all').render()
@@ -34,16 +33,38 @@ export function createFilter(parent) {
     selectPriority.append(priorityAll, priorityLow, priorityNormal, priorityHigh)
     //конец элементов фильтра поиска по срочности
 
-
+    /**
+     * [doctorArray] collects user IDs matching the search criteria
+     * **/
     let doctorArray;
+    /**
+     * [priorityArray] collects user IDs matching the search criteria
+     * **/
     let priorityArray;
+    /**
+     * [keyWordsArray] collects user IDs matching a card description field
+     * **/
     let keyWordsArray;
+    /**
+     * [arrayOfAllIDs] concats keyWordsArray, priorityArray and doctorArray into the one and contains all the IDs.
+     * **/
     let arrayOfAllIDs;
-    let uniqueIDs;
+    /**
+     * [twoMatchesArr] contains the IDs that match on two criteria (this array contains duplicate IDs. E.G. [15605,15605,15606,15606]
+     * **/
     let twoMatchesArr;
+    /**
+     * [threeMatchesArr] contains the IDs that match on three criteria (this array contains duplicate IDs. E.G. [15605,15605,15605,15606,15606,15606]
+     * **/
     let threeMatchesArr;
 
+    /**
+     * [uniqueTwoMatchesArr] contains the IDs that match on three criteria without duplicates
+     * **/
     let uniqueTwoMatchesArr;
+    /**
+     * [uniqueThreeMatchesArr] contains the IDs that match on three criteria without duplicates
+     * **/
     let uniqueThreeMatchesArr;
 
 
@@ -53,7 +74,10 @@ export function createFilter(parent) {
         document.querySelectorAll('.card').forEach(function (card) {
             card.classList.remove('matchesTwocriterias')
         })
-        uniqueIDs = [];
+
+        /**
+         * [] contains the IDs that match on three criteria without duplicates
+         * **/
         arrayOfAllIDs = [];
         doctorArray = []//
         priorityArray = []
@@ -63,6 +87,9 @@ export function createFilter(parent) {
         threeMatchesArr = []
         uniqueThreeMatchesArr = []
         uniqueTwoMatchesArr = []
+        /**
+         * strings 81-89 clear the arrays in the beginning of every function call
+         * **/
 
         let doctor = select.value
         await API.getAllCards().then(response => response.forEach(function (object) {
@@ -113,30 +140,51 @@ export function createFilter(parent) {
         arrayOfAllIDs = doctorArray.concat(priorityArray, keyWordsArray)
         arrayOfAllIDs.sort()
 
+        /**
+         * duplicate variable contains an array of repeating IDs (the IDs will repeat if the search criteria matched on two or more criteria)
+         * **/
         for (let i = 0; i < arrayOfAllIDs.length; i++){
-            let test = arrayOfAllIDs.filter(element => element === arrayOfAllIDs[i])
-            if (test.length === 2){
-                twoMatchesArr.push(test[0])
+            let duplicate = arrayOfAllIDs.filter(element => element === arrayOfAllIDs[i])
+
+            /**
+             * if an ID repeated two/three times (matched on two/three criteria), a 'duplicate' array will have a length of two (two same IDs)
+             * strings 154-166 will erase the duplicates so that we only have a unique ID that matched on two or three criteria
+             * **/
+
+            if (duplicate.length === 2){
+                twoMatchesArr.push(duplicate[0])
                 uniqueTwoMatchesArr = twoMatchesArr.reduce((uniq,item)=>{
                     return uniq.includes(item) ? uniq : [...uniq,item]
                 },[])
             }
-            else if(test.length === 3){
-                threeMatchesArr.push(test[0])
+            else if(duplicate.length === 3){
+                threeMatchesArr.push(duplicate[0])
                 uniqueThreeMatchesArr = threeMatchesArr.reduce((uniq,item)=>{
                     return uniq.includes(item) ? uniq : [...uniq,item]
                 },[])
             }
         }
 
+        /**
+         * If an ID didn't match on none of the criteria, no IDs will be removed a hidden class
+         * **/
+
         if (uniqueThreeMatchesArr.length === 0 && searchByDescription.value !== ''){
             return
         }
+        /**
+         * Should uniqueThreeMatchesArr array contain one or more items, that will mean that some ID matched on three criteria.
+         * The hidden class will be removed from them
+         * **/
         if (uniqueThreeMatchesArr.length >= 1){
             uniqueThreeMatchesArr.forEach(function (elem){
                 document.getElementById(`${elem}`).classList.remove('hidden')
             })
         }
+        /**
+         * Should uniqueThreeMatchesArr array length be 0, that will mean that none of the IDs matched on three criteria, only two.
+         * The hidden class will be removed from IDs that appeared in the uniqueTwoMatchesArr array.
+         * **/
         else if (uniqueThreeMatchesArr.length === 0){
             uniqueTwoMatchesArr.forEach(function (elem){
                 document.getElementById(`${elem}`).classList.remove('hidden')
