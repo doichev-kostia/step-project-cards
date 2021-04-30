@@ -108,6 +108,7 @@ async function createVisitForm() {
 
         modal.append(doctorForm.form)
     }
+
 }
 
 function renderChosenDoctorForm(modal, chosenDoctor) {

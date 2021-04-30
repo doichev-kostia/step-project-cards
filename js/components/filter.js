@@ -40,6 +40,12 @@ export function createFilter(parent) {
     let keyWordsArray;
     let arrayOfAllIDs;
     let uniqueIDs;
+    let twoMatchesArr;
+    let threeMatchesArr;
+
+    let uniqueTwoMatchesArr;
+    let uniqueThreeMatchesArr;
+
 
 
     searchByDescriptionBtn.addEventListener('click', async () => {
@@ -53,6 +59,10 @@ export function createFilter(parent) {
         priorityArray = []
         keyWordsArray = []
 
+        twoMatchesArr = []
+        threeMatchesArr = []
+        uniqueThreeMatchesArr = []
+        uniqueTwoMatchesArr = []
 
         let doctor = select.value
         await API.getAllCards().then(response => response.forEach(function (object) {
@@ -73,7 +83,6 @@ export function createFilter(parent) {
                 }
             }
         ))
-        console.log('doctors: ' + doctorArray)
 
         let priority = selectPriority.value;
         await API.getAllCards().then(response => response.forEach(function (object) {
@@ -93,33 +102,45 @@ export function createFilter(parent) {
                 }
             }
         }))
-        console.log('priority: ' + priorityArray)
 
-        // document.querySelectorAll('.card').forEach(card => card.classList.remove('hidden'))
         let searchValue = searchByDescription.value
         await API.getAllCards().then(response => response.forEach(function (object) {
-            if (searchValue === object.description.value) {
+            if (object.description.elementValue.includes(searchValue)) {
                 keyWordsArray.push(object.id)
             }
         }))
-        console.log('keywords: ' + keyWordsArray)
 
         arrayOfAllIDs = doctorArray.concat(priorityArray, keyWordsArray)
         arrayOfAllIDs.sort()
-        console.log('all IDs: ' + arrayOfAllIDs)
 
-        for (let i = 0; i < arrayOfAllIDs.length; i++) {
-            let test = arrayOfAllIDs.filter(item => item === arrayOfAllIDs[i])
-            // console.log(test)
-            if (test.length === 3) {
-                document.getElementById(`${test[0]}`).classList.remove('matchesTwocriterias')
-                // document.getElementById(`${test[0]}`).classList.add('matchesThreeCriterias')
-                document.getElementById(`${test[0]}`).classList.remove('hidden')
-
-            } else if (test.length === 2) {
-                document.getElementById(`${test[0]}`).classList.add('matchesTwocriterias')
-                document.getElementById(`${test[0]}`).classList.remove('hidden')
+        for (let i = 0; i < arrayOfAllIDs.length; i++){
+            let test = arrayOfAllIDs.filter(element => element === arrayOfAllIDs[i])
+            if (test.length === 2){
+                twoMatchesArr.push(test[0])
+                uniqueTwoMatchesArr = twoMatchesArr.reduce((uniq,item)=>{
+                    return uniq.includes(item) ? uniq : [...uniq,item]
+                },[])
             }
+            else if(test.length === 3){
+                threeMatchesArr.push(test[0])
+                uniqueThreeMatchesArr = threeMatchesArr.reduce((uniq,item)=>{
+                    return uniq.includes(item) ? uniq : [...uniq,item]
+                },[])
+            }
+        }
+
+        if (uniqueThreeMatchesArr.length === 0 && searchByDescription.value !== ''){
+            return
+        }
+        if (uniqueThreeMatchesArr.length >= 1){
+            uniqueThreeMatchesArr.forEach(function (elem){
+                document.getElementById(`${elem}`).classList.remove('hidden')
+            })
+        }
+        else if (uniqueThreeMatchesArr.length === 0){
+            uniqueTwoMatchesArr.forEach(function (elem){
+                document.getElementById(`${elem}`).classList.remove('hidden')
+            })
         }
     })
 }
