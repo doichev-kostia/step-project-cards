@@ -221,18 +221,6 @@ export class VisitForm extends Form {
      *
      *
      *
-     * @method validateData()
-     *
-     *         Checks if the inputs are empty or not
-     *
-     *         @param {object} elements with formElements. All inputs should be used inside of <label>
-     *
-     *         @returns {boolean}
-     *         True - if all inputs (except textarea are filled with text)
-     *         False - if one of the inputs (except textarea) is empty
-     *
-     *
-     *
      *  @method insertElementNextToAnotherElement()
      *
      *          Inserts one element next to another one
@@ -260,26 +248,6 @@ export class VisitForm extends Form {
      *          Deletes created form
      *
      * */
-
-    static async validateData(elements) {
-        let inputs = []
-        for (let [objectKey, objectValue] of Object.entries(elements)) {
-            if (objectKey !== "card") {
-                if (objectValue.tagName.toLowerCase() === "label") {
-                    if (objectValue.children[0].tagName.toLowerCase() !== "textarea") {
-                        inputs.push(...objectValue.children);
-                    }
-                }
-            }
-        }
-
-        for (let i = 0; i < inputs.length; i++) {
-            if (inputs[i].value.length < 1) {
-                return false
-            }
-        }
-        return true
-    }
 
     static insertElementNextToAnotherElement(staticElement, elementToInsert, place = "after") {
         if (!Array.isArray(elementToInsert)) {
@@ -340,10 +308,15 @@ export class VisitForm extends Form {
                 }
             });
 
-        elements.submitButton = new DOMElement("button",
-            classListObj.button,
-            "Создать визит",
-            {type: "submit"}).render();
+        elements.submitButton = super.renderInput("",
+            {input: classListObj.button},
+            "",
+            {
+                input: {
+                    type: "submit",
+                    value: "Создать визит",
+                }
+            })
 
         elements.form.append(
             elements.fullName,

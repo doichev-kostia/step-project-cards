@@ -2,50 +2,60 @@ import API from "../components/API.js";
 import {Form, VisitForm, VisitFormDentist, VisitFormTherapist, VisitFormCardiologist} from "../components/Form.js";
 import {Visit, VisitDentist, VisitTherapist, VisitCardiologist} from "../components/Visit.js";
 import DOMElement from "../components/DOMElement.js"
-import {ModalLogIn, ModalCreateVisit, ModalShowCard} from "../components/Modal.js";
-import {noVisitMessage} from "./main.js";
+import {ModalLogIn, ModalCreateVisit} from "../components/Modal.js";
+import {noVisitMessage, visitSection} from "./main.js";
 
 const root = document.querySelector('#root');
 const header = new DOMElement("header", ["header", "wrapper"]).render();
 const logoWrapper = new DOMElement("a", "logo-wrapper", "", {href: "#"}).render();
 const logo = new DOMElement("img", "logo", "", {src: "../dist/img/logo.png"}).render();
 const logInButton = new DOMElement("button", ["btn", "logInBtn"], "Вход").render();
-const logInModal = new ModalLogIn(parent, 'Вход', {
+const logInModal = new ModalLogIn(root, 'Вход', {
     modalWrapper: 'modal-wrapper',
     modal: 'modal',
     crossButton: 'cross',
     title: 'modal__title',
     submitButton: ['btn', "submit-btn"]
-}).render();
+});
+const createVisitButton = new DOMElement("button", ["btn", "visitBtn"], "Создать визит").render()
 
 
-export default async function createHeaderSection() {
+export default async function createHeaderSection(authorized) {
 
     root.append(header);
-    header.append(logoWrapper, logInButton);
+    header.append(logoWrapper);
     logoWrapper.append(logo);
 
-    let modalElements = await new Promise((resolve, reject) => {
-        logInButton.addEventListener("click", event => {
-            resolve(logInModal)
+    if(authorized){
+        header.append(createVisitButton);
+        await renderAllUserCards()
+    }else{
+        header.append(logInButton)
+        let modalElements = await new Promise((resolve, reject) => {
+            logInButton.addEventListener("click", event => {
+                resolve(logInModal.render())
+            })
         })
-    })
 
-    if (await ModalLogIn.verifyLogInData({...modalElements, logInButton})) {
-        let allUserCards = await API.getAllCards()
-        if (allUserCards.length > 0) {
-            await Visit.renderCards(cardsSection, allUserCards);
-        } else {
-            noVisitMessage.hidden = false;
+        if (await ModalLogIn.verifyLogInData({...modalElements, logInButton, createVisitButton})) {
+            await renderAllUserCards()
         }
     }
-    await createVisitModal(modalElements);
+
+    await createVisitModal(createVisitButton);
 }
 
-createHeaderSection()
+async function renderAllUserCards(){
+    let allUserCards = await API.getAllCards()
+    if (allUserCards.length > 0) {
+        noVisitMessage.hidden = true
+        await Visit.renderCards(visitSection, allUserCards);
+    } else {
+        noVisitMessage.hidden = false;
+    }
+}
 
-function createVisitModal(modalElements) {
-    let {visitButton} = modalElements
+function createVisitModal(visitButton) {
     visitButton.addEventListener('click', () => {
         createVisitForm()
     })
@@ -77,34 +87,29 @@ async function createVisitForm() {
     form.append(doctorSelect)
     modal.append(form);
 
-    let doctorForm = await new Promise((resolve, reject) => {
-        doctorSelect.addEventListener("change", event => {
-            resolve(renderChosenDoctorForm(modal, event.target.value));
-        })
-    })
+        doctorSelect.addEventListener("change", event => handleSelectClick(event));
 
-    doctorForm.submitButton.addEventListener("click", async (event) => {
-        event.preventDefault();
+    function handleSelectClick(event){
+        let modalForms = [...event.target.closest(".modal").children]
+            .filter(child => child.tagName.toLowerCase() === "form");
 
-        if (await VisitForm.validateData(doctorForm)) {
-            let error = [...doctorForm.form.children].filter(item => item.tagName.toLowerCase() === "span")
-            if (error.length < 1) {
-                let card = await Visit.createVisitCard(doctorForm);
-                await Visit.renderCards(document.querySelector(".visit-section"), card);
-                modalWrapper.remove()
-            } else {
-                error.remove()
-            }
-        } else {
-            let error = [...doctorForm.form.children].filter(item => item.tagName.toLowerCase() === "span")
-            if (error.length < 1) {
-                error = new DOMElement("span", "modal__error", "Заполните пожалуйста все поля с *").render();
-                doctorForm.submitButton.before(error)
+        if(modalForms.length > 1){
+            for (let i = 1; i < modalForms.length; i++) {
+                modalForms[i].remove()
             }
         }
-    })
 
-    modal.append(doctorForm.form)
+        let doctorForm = renderChosenDoctorForm(modal, event.target.value)
+
+        doctorForm.submitButton.addEventListener("click", async (event) => {
+            // event.preventDefault();
+            let card = await Visit.createVisitCard(doctorForm);
+            await Visit.renderCards(document.querySelector(".visit-section"), card);
+            modalWrapper.remove()
+        })
+
+        modal.append(doctorForm.form)
+    }
 }
 
 function renderChosenDoctorForm(modal, chosenDoctor) {
@@ -136,4 +141,3 @@ function renderChosenDoctorForm(modal, chosenDoctor) {
         return therapist.renderDoctorSet()
     }
 }
-

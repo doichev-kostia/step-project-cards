@@ -4,7 +4,7 @@ export default class API {
     static getHeaders() {
         return {
             'content-type': 'application/json',
-            'authorization': `Bearer ${API.token || localStorage.token}`
+            'authorization': `Bearer ${API.token || sessionStorage.token}`
         }
     }
 
@@ -32,7 +32,7 @@ export default class API {
 
     static saveToken(tokenFromResponse) {
         API.token = tokenFromResponse;
-        localStorage.setItem("token",tokenFromResponse)
+        sessionStorage.setItem("token",tokenFromResponse)
     }
 
     static async saveCard(cardToSave) {
@@ -70,7 +70,7 @@ export default class API {
          let response = fetch(`${API.URL}/${cardId}`, {
             method: "DELETE",
             headers: {
-                'Authorization': `Bearer ${API.token || localStorage.token}`
+                'Authorization': `Bearer ${API.token || sessionStorage.token}`
             }
         })
     }
@@ -83,7 +83,7 @@ export default class API {
          let response = fetch(`${API.URL}/${cardId}`, {
             method: "GET",
             headers: {
-                'Authorization': `Bearer ${API.token || localStorage.token}`
+                'Authorization': `Bearer ${API.token || sessionStorage.token}`
             }
         })
             return await response.json;
@@ -94,7 +94,7 @@ export default class API {
         let response = await fetch(`${API.URL}`, {
             method: "GET",
             headers: {
-                'authorization': `Bearer ${API.token || localStorage.token}`
+                'authorization': `Bearer ${API.token || sessionStorage.token}`
             }
         })
             return await response.json()

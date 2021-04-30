@@ -49,9 +49,6 @@ export class ModalLogIn extends Modal {
         const {modalWrapper, modal, crossButton, title} = elements
         elements.form = new Form();
 
-        elements.visitButton = new DOMElement("button", ["btn", "visitBtn"], "Создать визит").render()
-
-
         elements.emailInput = elements.form.renderInput('', {input: 'form__input'}, 'email', {input:{
                 type: "email",
                 autocomplete: "username",
@@ -81,7 +78,6 @@ export class ModalLogIn extends Modal {
             title,
             form: elements.form,
             submitButton: elements.submitButton,
-            visitButton: elements.visitButton,
             emailInput: elements.emailInput,
             passwordInput: elements.passwordInput
         }
@@ -94,7 +90,7 @@ export class ModalLogIn extends Modal {
             submitButton,
             emailInput,
             passwordInput,
-            visitButton,
+            createVisitButton,
             logInButton
         } = elements;
 
@@ -112,11 +108,10 @@ export class ModalLogIn extends Modal {
                     await API.login({email, password});
 
                     modalWrapper.remove()
-                    logInButton.replaceWith(visitButton)
+                    logInButton.replaceWith(createVisitButton)
                     resolve(true)
                 } catch (e) {
                     console.error(e)
-
                     let error = new DOMElement('span', 'modal__error', 'Incorrect username or password').render();
                     form.insertAdjacentElement('beforebegin', error);
                     setTimeout(() => {
