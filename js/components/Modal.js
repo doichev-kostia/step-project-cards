@@ -1,7 +1,6 @@
 import DOMElement from "./DOMElement.js"
 import API from "./API.js"
 import {Form, VisitForm} from "./Form.js";
-// import {visitTest} from "../sections/header.js";
 
 export class Modal {
     constructor(parent, titleText, CSSClassObject) {
@@ -44,17 +43,11 @@ export class Modal {
 }
 
 export class ModalLogIn extends Modal {
-    constructor(parent, titleText, CSSClassObject) {
-        super(parent, titleText, CSSClassObject)
-    }
 
     render() {
         const {parent, titleText, CSSClass, elements} = this
         const {modalWrapper, modal, crossButton, title} = elements
-        elements.form = new Form("form");
-
-        elements.visitButton = new DOMElement("button", ["btn", "visitBtn"], "Создать визит").render()
-
+        elements.form = new Form();
 
         elements.emailInput = elements.form.renderInput('', {input: 'form__input'}, 'email', {input:{
                 type: "email",
@@ -67,8 +60,6 @@ export class ModalLogIn extends Modal {
                 required: true
             }});
         elements.submitButton = new DOMElement("button",  CSSClass.submitButton, "Войти", {type: "submit"}).render();
-
-
 
         this.addStyles()
         this.closeModal()
@@ -87,18 +78,53 @@ export class ModalLogIn extends Modal {
             title,
             form: elements.form,
             submitButton: elements.submitButton,
-            visitButton: elements.visitButton,
             emailInput: elements.emailInput,
             passwordInput: elements.passwordInput
         }
     }
 
+    static async verifyLogInData(elements) {
+        const {
+            form,
+            modalWrapper,
+            submitButton,
+            emailInput,
+            passwordInput,
+            createVisitButton,
+            logInButton
+        } = elements;
+
+        return new Promise((resolve, reject) => {
+            submitButton.addEventListener('click', async (event) => {
+                event.preventDefault();
+
+                const credentials = {
+                    email: emailInput.value,
+                    password: passwordInput.value,
+                }
+                const {email, password} = credentials;
+
+                try {
+                    await API.login({email, password});
+
+                    modalWrapper.remove()
+                    logInButton.replaceWith(createVisitButton)
+                    resolve(true)
+                } catch (e) {
+                    console.error(e)
+                    let error = new DOMElement('span', 'modal__error', 'Incorrect username or password').render();
+                    form.insertAdjacentElement('beforebegin', error);
+                    setTimeout(() => {
+                        error.remove()
+                    }, 2000)
+                    resolve(false)
+                }
+            })
+        })
+    }
 }
 
 export class ModalCreateVisit extends Modal {
-    constructor(parent, titleText, CSSClassObject) {
-        super(parent, titleText, CSSClassObject);
-    }
 
     render() {
         const {parent, titleText, CSSClass, elements} = this
@@ -108,6 +134,7 @@ export class ModalCreateVisit extends Modal {
         parent.append(modalWrapper)
         modalWrapper.append(modal)
         modal.prepend(crossButton, title)
+
         this.closeModal()
         return {
             modalWrapper,
@@ -115,10 +142,5 @@ export class ModalCreateVisit extends Modal {
             crossButton,
             title,
         }
-    }
-}
-
-export class ModalShowCard {
-    constructor() {
     }
 }

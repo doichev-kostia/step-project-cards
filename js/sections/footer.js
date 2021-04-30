@@ -10,4 +10,3 @@ export default function createFooterSection(){
     footer.append(footerText);
 }
 
-createFooterSection()
