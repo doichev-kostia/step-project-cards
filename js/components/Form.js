@@ -61,7 +61,7 @@ export class Form {
 
         let notValidFields = fields.filter(item => !item.validity.valid);
         if (notValidFields.length === 0) {
-            let card = await Visit.createVisitCard(formElements);
+            let card = await Visit.registerVisitCard(formElements);
             await Visit.renderCards(document.querySelector(".visit-section"), card);
             document.querySelector(".modal-wrapper").remove()
         }

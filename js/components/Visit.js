@@ -109,10 +109,10 @@ export class Visit {
 
     /**
      * Insert element next to another one
-     *  @param {DOMElement} staticElement - element next to which another
+     *  @param {Element} staticElement - element next to which another
      *  element will be inserted
      *
-     *  @param {DOMElement | DOMElement[]} elementToInsert - element or
+     *  @param {Element | Element[]} elementToInsert - element or
      *  array of elements that will be inserted
      *
      *  @param {String} place - put elementToInsert "after" of "begin" the staticElement
@@ -155,8 +155,8 @@ export class Visit {
      *
      *  @return {Object} saved card and its id
      * */
-    static async createVisitCard(formElements) {
-        let visitDetails = formElements.card
+    static async registerVisitCard(formElements) {
+        let card = formElements.card
         let formElementsObj = Object.assign(formElements)
 
         delete formElementsObj.card
@@ -164,12 +164,22 @@ export class Visit {
         delete formElementsObj.submitButton
 
         for (let [key, value] of Object.entries(formElementsObj)) {
-            visitDetails[key].elementValue = formElementsObj[key].children[0].value;
+            card[key].elementValue = formElementsObj[key].children[0].value;
         }
 
-        return await API.saveCard(visitDetails);
+        return await API.saveCard(card);
     }
 
+    /**
+     * Insert visit cards in page / parent element
+     *
+     *  @param {Element} parent - element in which cards will be
+     *  inserted
+     *
+     *  @param {Object | Object[]} cards - object or array of objects with
+     *  card details
+     *
+     * */
     static async renderCards(parent, cards) {
         if (!Array.isArray(cards)) {
             cards = [cards]
@@ -189,12 +199,32 @@ export class Visit {
         })
     }
 
+    /**
+     * Create default visit card.
+     *
+     * @returns {object} all created elements
+     *
+     * example of elements :{
+     *      actionsContainer: div.edit__container
+            age: label.card__label
+            cardContainer: div#15681.card
+            deleteBtn: button.edit__btn.edit__btn--hover-red
+            description: label.card__label
+            doctor: label.card__label
+            editBtn: button.edit__btn
+            editSVG: <svg></svg>
+            editSVGButton: button.card__icon.card__icon-button
+            fullName: label.card__label
+            priority: label.card__label
+            reason: label.card__label
+            showMoreButton: button.card__button
+     * }
+     *
+     * */
     render() {
         const {visitDetails, elements, classListObj, SVGParams} = this;
         this.id = visitDetails.id
         const form = new Form();
-
-        // console.log(visitDetails)
 
         for (let [objectKey, objectValue] of Object.entries(visitDetails)) {
             if (objectKey !== "id") {
@@ -296,6 +326,13 @@ export class Visit {
         return elements
     }
 
+
+    /**
+     * if showMoreButton is clicked, copy of the visit card and all the
+     * visit information will be shown
+     * like a modal
+     *
+     * */
     extendCard() {
         const {visitDetails, elements, classListObj, SVGParams} = this;
 
@@ -326,10 +363,6 @@ export class Visit {
         let editBtn = [...actionsContainer.children].find(child => {
             return child.classList.contains(classListObj.editBtn)
         });
-
-        let lastLabel = cardCopyChildren.filter(child => {
-            return child.tagName.toLowerCase() === "label"
-        }).pop();
 
         let modalWrapper = new DOMElement("div",
             "modal-wrapper").render();
@@ -364,6 +397,13 @@ export class Visit {
         root.append(modalWrapper);
     }
 
+    /**
+     * Deletes the card from page and from Database
+     *  @param {Element} elementToDelete - cardContainer that will be removed
+     *  @param {Number} cardId - id that database use to find and delete the
+     *  card
+     *
+     * */
     async deleteCard(elementToDelete, cardId) {
         elementToDelete.remove()
 
@@ -376,6 +416,12 @@ export class Visit {
         }
     }
 
+    /**
+     * If edit button is clicked, all the fields become changeable(disabled
+     * = false) if it's clicked one more time, the fields become disabled
+     *
+     * @param {Element} card - cardContainer or cardContainer copy
+     * */
     async editCard(card = this.elements.cardContainer) {
         const {visitDetails, elements, classListObj, SVGParams} = this;
         if (!Array.isArray(classListObj.input)) {
@@ -421,6 +467,11 @@ export class Visit {
         await this.applyChanges(card)
     }
 
+    /**
+     * Sends request to server to put edited object
+     *  @param {Element} card - edited card. cardContainer is expected to be
+     *  passed
+     * */
     async applyChanges(card = this.elements.cardContainer) {
         const {visitDetails, elements, classListObj, SVGParams} = this;
 
