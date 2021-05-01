@@ -3,6 +3,7 @@ import DOMElement from "./DOMElement.js";
 import {createEditSVG} from "./CreateSVG.js";
 import {Form, VisitForm, VisitFormDentist, VisitFormTherapist, VisitFormCardiologist} from "./Form.js";
 
+/** Object with default CSS classes */
 const defaultClasses = {
     cardContainer: "card",
     label: "card__label",
@@ -20,17 +21,39 @@ const defaultClasses = {
 }
 
 export class Visit {
-    /***
-     * @requires:
-     * visitDetails - object {
-     *   id,
-     *   fullName,
-     *   doctor,
-     *   priority,
-     *   reason,
-     *   description
-     * },
-     * CSS classes - obj (array can be used as a value){
+    /** @constructor
+     * Creates visit card
+     *
+     *  @param {Object} visitDetails - object {
+     *   id: 15688
+     *   description: {
+     *                  label: "Описание визита: ",
+     *                  elementValue: ""
+     *                  },
+         doctor: {
+                    label: "Доктор: ",
+                    elementValue: "Стоматолог"
+                   },
+         fullName: {
+                    label: "ФИО: ",
+                    elementValue: "gogidoe"
+                    },
+         previousVisitDate: {
+                     label: "Дата последнего визита: ",
+                     elementValue: "2021-02-04"
+                    },
+         priority: {
+                    label: "Срочность: ",
+                     elementValue: "Обычная"
+                    },
+         reason: {
+                    label: "Цель визита: ",
+                     elementValue: "Осмотр"
+                    },
+     *   }
+     *
+     *  @param {Object} classListObj - obj with CSS classes
+     *  (array can be used as a value){
      *     cardContainer: "CSS class"
      *     label: "CSS class",
      *     inputDisabled: "CSS class",
@@ -43,26 +66,37 @@ export class Visit {
      *     extendedInfoContainer: "CSS class"
      *     textArea: "CSS class",
      *     textAreaDisabled: "",
-     * },
-     * SVGParams obj {
+     *     }
+     *  @param{Object} SVGParams - obj with parameters {
      *     width: number,
      *     height: number
-     * }
+     *     }
      */
-    constructor(visitDetails, classListObj = defaultClasses, SVGParams = {width: 20, height: 20}) {
+    constructor(visitDetails,
+                classListObj = defaultClasses,
+                SVGParams = {width: 20, height: 20}) {
         this.visitDetails = visitDetails;
         this.classListObj = classListObj;
         this.SVGParams = SVGParams;
         this.elements = {
-            cardContainer: new DOMElement("div", classListObj.cardContainer, "", {id: visitDetails.id}).render()
+            cardContainer: new DOMElement(
+                "div",
+                classListObj.cardContainer,
+                "",
+                {id: visitDetails.id}).render()
         }
     }
 
+    /**
+     * Changes visibility of the card
+     *
+     *  @param {Boolean} toHide - If true - card will be hidden, if false - shown;
+     *  @param {String | Number} cardId - id of the card that will change
+     *  its visibility. Can look like "#idNumber", "idNumber", idNumber
+     * */
     static toggleVisibility(toHide, cardId) {
-        /**
-         * toHide argument is a boolean value. If true - card will be hidden, if false - shown;
-         * */
         let card;
+        cardId = cardId.toString()
 
         if (cardId.includes("#")) {
             card = document.querySelector(cardId);
@@ -73,16 +107,54 @@ export class Visit {
         card.hidden = toHide;
     }
 
-    static insertElementNextToAnotherElement(staticElement, elementToInsert) {
+    /**
+     * Insert element next to another one
+     *  @param {DOMElement} staticElement - element next to which another
+     *  element will be inserted
+     *
+     *  @param {DOMElement | DOMElement[]} elementToInsert - element or
+     *  array of elements that will be inserted
+     *
+     *  @param {String} place - put elementToInsert "after" of "begin" the staticElement
+     * */
+    static insertElementNextToAnotherElement(staticElement,
+                                             elementToInsert,
+                                             place = "after") {
         if (!Array.isArray(elementToInsert)) {
-            elementToInsert = [elementToInsert]
+            elementToInsert = [elementToInsert];
         }
 
-        elementToInsert.forEach(item => {
-            staticElement.after(item);
-        })
+        if (place === "after" || place === "before"){
+            elementToInsert.forEach(item => {
+                staticElement[place](item);
+            })
+        } else {
+            console.error(new Error("Not valid insert place"));
+            return;
+        }
     }
 
+    /**
+     * Creates and saves visit card
+     *
+     *  @param {Object} formElements - elements of the form
+     *  Expected to look like(some fields may be different):
+     *  {
+            age: label.form__label
+            bloodPressure: label.form__label
+            bmi: label.form__label
+            card: {fullName: {…}, priority: {…}, reason: {…}, description: {…}, bloodPressure: {…}, …}
+            description: label.form__label
+            form: form.form
+            fullName: label.form__label
+            heartDiseases: label.form__label
+            priority: label.form__label
+            reason: label.form__label
+            submitButton: input.btn.form__btn
+     *  }
+     *
+     *  @return {Object} saved card and its id
+     * */
     static async createVisitCard(formElements) {
         let visitDetails = formElements.card
         let formElementsObj = Object.assign(formElements)
@@ -122,6 +194,8 @@ export class Visit {
         this.id = visitDetails.id
         const form = new Form();
 
+        // console.log(visitDetails)
+
         for (let [objectKey, objectValue] of Object.entries(visitDetails)) {
             if (objectKey !== "id") {
                 elements[objectKey] = form.renderInput(objectValue.label, {
@@ -137,23 +211,53 @@ export class Visit {
                         name: objectKey
                     }
                 });
-
-                elements[objectKey].children[0].textContent = objectValue.elementValue // elements[objectKey] = <label>
             }
         }
 
         elements.fullName.hidden = false;
         elements.doctor.hidden = false;
 
-        elements.showMoreButton = new DOMElement("button", classListObj.button, "Показать больше").render();
+        let priorityInput = elements.priority.children[0];
 
-        elements.editSVG = createEditSVG(classListObj.editSVG, SVGParams.width, SVGParams.height);
-        elements.editSVGButton = new DOMElement("button", classListObj.editSVGButton, "",
+        if (priorityInput.value === "low"){
+            priorityInput.value = "Обычная"
+        } else if(priorityInput.value === "medium"){
+            priorityInput.value = "Приоритетная"
+        } else if (priorityInput.value === "high"){
+            priorityInput.value = "Неотложная"
+        }
+
+        elements.showMoreButton = new DOMElement(
+            "button",
+            classListObj.button,
+            "Показать больше").render();
+
+        elements.editSVG = createEditSVG(
+            classListObj.editSVG,
+            SVGParams.width,
+            SVGParams.height);
+
+        elements.editSVGButton = new DOMElement(
+            "button",
+            classListObj.editSVGButton,
+            "",
             {visibility: "hidden"}).render();
 
-        elements.actionsContainer = new DOMElement("div", classListObj.actionsContainer, "", {hidden: true}).render();
-        elements.editBtn = new DOMElement("button", classListObj.editBtn, "Изменить").render();
-        elements.deleteBtn = new DOMElement("button", classListObj.deleteBtn, "Удалить").render();
+        elements.actionsContainer = new DOMElement(
+            "div",
+            classListObj.actionsContainer,
+            "",
+            {hidden: true}).render();
+
+        elements.editBtn = new DOMElement(
+            "button",
+            classListObj.editBtn,
+            "Изменить").render();
+
+        elements.deleteBtn = new DOMElement(
+            "button",
+            classListObj.deleteBtn,
+            "Удалить").render();
 
         let actionContainerTrigger = false;
         elements.editSVGButton.addEventListener("click", event => {
@@ -167,8 +271,13 @@ export class Visit {
             extendFlag = !extendFlag
         });
 
-        elements.deleteBtn.addEventListener("click", async (event) => await this.deleteCard(elements.cardContainer, this.id));
-        elements.editBtn.addEventListener("click", async event => await this.editCard());
+        elements.deleteBtn.addEventListener("click", async (event) =>{
+            await this.deleteCard(elements.cardContainer, this.id);
+        });
+
+        elements.editBtn.addEventListener("click", async event => {
+            await this.editCard();
+        });
 
         elements.actionsContainer.append(elements.editBtn, elements.deleteBtn);
         elements.cardContainer.insertAdjacentHTML("afterbegin", elements.editSVG);
@@ -191,28 +300,42 @@ export class Visit {
         const {visitDetails, elements, classListObj, SVGParams} = this;
 
         const root = document.querySelector("#root");
-
         let cardCopy = elements.cardContainer.cloneNode(true)
         const cardCopyChildren = [...cardCopy.children];
-
-        const cardFields = cardCopyChildren.filter(child => child.tagName.toLowerCase() === "label");
+        const cardFields = cardCopyChildren.filter(child => {
+           return child.tagName.toLowerCase() === "label"
+        });
         cardFields.forEach(item => item.hidden = false);
-
         let showMoreBtn = cardCopyChildren
-            .find(child => child.tagName.toLowerCase() === "button" && child.classList.contains(classListObj.button || classListObj.button.join(" ")));
+            .find(child => {
+                return child.tagName.toLowerCase() === "button" &&
+                child.classList.contains(classListObj.button || classListObj.button.join(" "))
+            });
+
         let editSVGButton = cardCopyChildren
-            .find(child => child.tagName.toLowerCase() === "button" && child.className.includes(classListObj.editSVGButton.join(" ")));
+            .find(child => child.tagName.toLowerCase() === "button" &&
+                child.className.includes(classListObj.editSVGButton.join(" ")));
+
         let actionsContainer = cardCopyChildren
             .find(child => child.classList.contains(classListObj.actionsContainer));
-        let deleteBtn = [...actionsContainer.children].find(child => child.className.includes(classListObj.deleteBtn.join(" ")));
-        let editBtn = [...actionsContainer.children].find(child => child.classList.contains(classListObj.editBtn));
 
+        let deleteBtn = [...actionsContainer.children].find(child => {
+            return child.className.includes(classListObj.deleteBtn.join(" "))
+        });
 
-        let lastLabel = cardCopyChildren.filter(child => child.tagName.toLowerCase() === "label").pop();
-        let modalWrapper = new DOMElement("div", "modal-wrapper").render();
+        let editBtn = [...actionsContainer.children].find(child => {
+            return child.classList.contains(classListObj.editBtn)
+        });
 
+        let lastLabel = cardCopyChildren.filter(child => {
+            return child.tagName.toLowerCase() === "label"
+        }).pop();
+
+        let modalWrapper = new DOMElement("div",
+            "modal-wrapper").render();
 
         let actionContainerTrigger = false;
+
         editSVGButton.addEventListener("click", event => {
             actionsContainer.hidden = actionContainerTrigger;
             actionContainerTrigger = !actionContainerTrigger;
@@ -268,19 +391,21 @@ export class Visit {
                 }
             })
             editBtn = [...actionsContainer.children].find(child => {
-                   return child.className.includes(classListObj.editBtn)
+                return child.className.includes(classListObj.editBtn)
             });
 
         } else {
             editBtn = elements.editBtn
         }
 
-        const labels = [...card.children].filter(child => child.tagName.toLowerCase() === "label");
+        const labels = [...card.children].filter(child => {
+            return child.tagName.toLowerCase() === "label"
+        });
         labels.forEach(label => {
 
             [...label.children].forEach(async child => {
 
-                if (child.disabled === true) {
+                if (child.disabled) {
                     child.className = classListObj.input.join(" ")
                     child.disabled = false;
                     editBtn.textContent = "Готово";
@@ -293,9 +418,7 @@ export class Visit {
                 }
             });
         });
-                    await this.applyChanges(card)
-
-
+        await this.applyChanges(card)
     }
 
     async applyChanges(card = this.elements.cardContainer) {
@@ -303,7 +426,7 @@ export class Visit {
 
         let labelsObj = {};
         for (let [objectKey, objectValue] of Object.entries(elements)) {
-            if (typeof (objectValue) !== "string") {
+            if (objectValue instanceof Element) {
                 if (objectValue.tagName.toLowerCase() === "label") {
                     labelsObj[objectKey] = objectValue.children[0].value;
                 }
@@ -317,7 +440,9 @@ export class Visit {
                 .map(label => label.children[0]);
 
             for(let [objectKey, objectValue] of Object.entries(labelsObj)){
-                labelsObj[objectKey] = cardInputs.find(item => item.name === objectKey).value
+                labelsObj[objectKey] = cardInputs.find(item => {
+                    return item.name === objectKey
+                }).value
             }
         }
 
@@ -331,7 +456,7 @@ export class Visit {
             }
         }
 
-        const response = await API.editCard(this.id, visitDetails);
+        await API.editCard(this.id, visitDetails);
     }
 }
 
@@ -351,7 +476,9 @@ export class VisitDentist extends Visit {
         const {visitDetails, elements, classListObj, SVGParams} = this;
         super.render();
 
-        Visit.insertElementNextToAnotherElement(elements.reason, elements.previousVisitDate);
+        Visit.insertElementNextToAnotherElement(elements.reason,
+            elements.previousVisitDate);
+
         return elements
     }
 }
@@ -362,7 +489,8 @@ export class VisitCardiologist extends Visit {
         super.render();
 
         Visit.insertElementNextToAnotherElement(elements.reason,
-            [elements.bloodPressure, elements.bmi, elements.heartDiseases, elements.age]);
+            [elements.bloodPressure, elements.bmi,
+                elements.heartDiseases, elements.age]);
 
         return elements;
     }

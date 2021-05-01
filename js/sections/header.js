@@ -24,6 +24,7 @@ export default async function createHeaderSection(authorized) {
     root.append(header);
     header.append(logoWrapper);
     logoWrapper.append(logo);
+
     if(authorized){
         header.append(createVisitButton);
         await renderAllUserCards()
@@ -34,10 +35,12 @@ export default async function createHeaderSection(authorized) {
                 resolve(logInModal.render())
             })
         })
+
         if (await ModalLogIn.verifyLogInData({...modalElements, logInButton, createVisitButton})) {
             await renderAllUserCards()
         }
     }
+
     await createVisitModal(createVisitButton);
     createFilter(filterContainer)
 }
@@ -81,8 +84,12 @@ async function createVisitForm() {
 
     doctorSelect.children[0].children[0].disabled = true;
 
+    const hint = new DOMElement("span",
+        "form__hint",
+        "Поля с * обязательны для заполнения").render()
+
     form = form.renderForm()
-    form.append(doctorSelect)
+    form.append(hint, doctorSelect);
     modal.append(form);
 
     doctorSelect.addEventListener("change", event => handleSelectClick(event));
@@ -100,10 +107,8 @@ async function createVisitForm() {
         let doctorForm = renderChosenDoctorForm(modal, event.target.value)
 
         doctorForm.submitButton.addEventListener("click", async (event) => {
-            event.preventDefault();
-            let card = await Visit.createVisitCard(doctorForm);
-            await Visit.renderCards(document.querySelector(".visit-section"), card);
-            modalWrapper.remove()
+            console.log(doctorForm)
+            await Form.validateForm(doctorForm)
         })
 
         modal.append(doctorForm.form)
