@@ -2,8 +2,22 @@ import DOMElement from "./DOMElement.js"
 import API from "./API.js"
 import {Form, VisitForm} from "./Form.js";
 
+/**
+ * @requires:
+ * parent - DOM element
+ * titleText - string
+ * textContent - string
+ * CSSClassObject - object with pairs {
+ *     attributeName: attributeValue
+ * }
+ * */
+
 export class Modal {
-    constructor(parent, titleText, CSSClassObject) {
+/**
+ * Creates a modal window
+ * */
+
+constructor(parent, titleText, CSSClassObject) {
         this.parent = parent;
         this.titleText = titleText;
         this.CSSClass = CSSClassObject;
@@ -14,7 +28,10 @@ export class Modal {
             title: document.createElement('p'),
         }
     }
-
+    /**
+     * addStyles() method
+     * adds css classes to the components of a modal window
+     * */
     addStyles() {
         const {modalWrapper, modal, crossButton, title} = this.elements
         modalWrapper.classList.add(this.CSSClass.modalWrapper)
@@ -22,14 +39,20 @@ export class Modal {
         crossButton.classList.add(this.CSSClass.crossButton)
         title.classList.add(this.CSSClass.title)
     }
-
+    /**
+     * elementsAddTextContent() method
+     * adds text content to the modal window title and the cross sign to the close button
+     * */
     elementsAddTextContent() {
         const {crossButton, title} = this.elements
         title.textContent = this.titleText;
         crossButton.textContent = 'X'
     }
 
-    //добавляет текстовый контент элементам
+    /**
+     * closeModal() method
+     * enables to close the modal window by clicking at the cross button or outside of the modal block
+     * */
     closeModal() {
         const {modalWrapper} = this.elements
         modalWrapper.addEventListener('click', (event) => {
@@ -38,11 +61,14 @@ export class Modal {
             }
         })
     }
-
-    //закрывает модальное окно по нажатию на крестик и вне области модалки
 }
 
 export class ModalLogIn extends Modal {
+
+    /**
+     * render() method
+     * renders the login modal window onto the page.
+     * */
 
     render() {
         const {parent, titleText, CSSClass, elements} = this
@@ -82,6 +108,11 @@ export class ModalLogIn extends Modal {
             passwordInput: elements.passwordInput
         }
     }
+
+    /**
+     * verifyLogInData(elements) method
+     * verifies the users' credentials
+     * */
 
     static async verifyLogInData(elements) {
         const {
@@ -123,6 +154,11 @@ export class ModalLogIn extends Modal {
         })
     }
 }
+
+/**
+ * ModalCreateVisit class
+ * creates a modal window to submit users visits
+ * */
 
 export class ModalCreateVisit extends Modal {
 

@@ -5,7 +5,7 @@ import DOMElement from "../components/DOMElement.js"
 import {ModalLogIn, ModalCreateVisit} from "../components/Modal.js";
 
 const root = document.querySelector('#root');
-const main = new DOMElement("main", "main").render();
+export const main = new DOMElement("main", "main").render();
 export const visitSection = new DOMElement("section", ["visit-section", "wrapper"]).render();
 export const noVisitMessage = new DOMElement("p", "no-visit-message", "Визитов не добавлено", {hidden: false}).render();
 

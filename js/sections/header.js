@@ -4,6 +4,7 @@ import {Visit, VisitDentist, VisitTherapist, VisitCardiologist} from "../compone
 import DOMElement from "../components/DOMElement.js"
 import {ModalLogIn, ModalCreateVisit} from "../components/Modal.js";
 import {noVisitMessage, visitSection} from "./main.js";
+import {filterContainer,createFilter} from '../components/filter.js'
 
 const root = document.querySelector('#root');
 const header = new DOMElement("header", ["header", "wrapper"]).render();
@@ -19,13 +20,10 @@ const logInModal = new ModalLogIn(root, 'Вход', {
 });
 const createVisitButton = new DOMElement("button", ["btn", "visitBtn"], "Создать визит").render()
 
-
 export default async function createHeaderSection(authorized) {
-
     root.append(header);
     header.append(logoWrapper);
     logoWrapper.append(logo);
-
     if(authorized){
         header.append(createVisitButton);
         await renderAllUserCards()
@@ -36,16 +34,15 @@ export default async function createHeaderSection(authorized) {
                 resolve(logInModal.render())
             })
         })
-
         if (await ModalLogIn.verifyLogInData({...modalElements, logInButton, createVisitButton})) {
             await renderAllUserCards()
         }
     }
-
     await createVisitModal(createVisitButton);
+    createFilter(filterContainer)
 }
 
-async function renderAllUserCards(){
+async function renderAllUserCards() {
     let allUserCards = await API.getAllCards()
     if (allUserCards.length > 0) {
         noVisitMessage.hidden = true
@@ -54,6 +51,7 @@ async function renderAllUserCards(){
         noVisitMessage.hidden = false;
     }
 }
+
 
 function createVisitModal(visitButton) {
     visitButton.addEventListener('click', () => {
@@ -87,13 +85,13 @@ async function createVisitForm() {
     form.append(doctorSelect)
     modal.append(form);
 
-        doctorSelect.addEventListener("change", event => handleSelectClick(event));
+    doctorSelect.addEventListener("change", event => handleSelectClick(event));
 
-    function handleSelectClick(event){
+    function handleSelectClick(event) {
         let modalForms = [...event.target.closest(".modal").children]
             .filter(child => child.tagName.toLowerCase() === "form");
 
-        if(modalForms.length > 1){
+        if (modalForms.length > 1) {
             for (let i = 1; i < modalForms.length; i++) {
                 modalForms[i].remove()
             }
@@ -110,6 +108,7 @@ async function createVisitForm() {
 
         modal.append(doctorForm.form)
     }
+
 }
 
 function renderChosenDoctorForm(modal, chosenDoctor) {
@@ -141,3 +140,4 @@ function renderChosenDoctorForm(modal, chosenDoctor) {
         return therapist.renderDoctorSet()
     }
 }
+
