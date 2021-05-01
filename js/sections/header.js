@@ -102,7 +102,7 @@ async function createVisitForm() {
         let doctorForm = renderChosenDoctorForm(modal, event.target.value)
 
         doctorForm.submitButton.addEventListener("click", async (event) => {
-            // event.preventDefault();
+            event.preventDefault();
             let card = await Visit.createVisitCard(doctorForm);
             await Visit.renderCards(document.querySelector(".visit-section"), card);
             modalWrapper.remove()

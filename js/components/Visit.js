@@ -2,6 +2,7 @@ import API from "./API.js";
 import DOMElement from "./DOMElement.js";
 import {createEditSVG} from "./CreateSVG.js";
 import {Form, VisitForm, VisitFormDentist, VisitFormTherapist, VisitFormCardiologist} from "./Form.js";
+
 const defaultClasses = {
     cardContainer: "card",
     label: "card__label",
@@ -17,6 +18,7 @@ const defaultClasses = {
     textArea: "card__textarea",
     textAreaDisabled: ["card__textarea--disabled", "card__textarea"]
 }
+
 export class Visit {
     /***
      * @requires:
@@ -56,15 +58,15 @@ export class Visit {
         }
     }
 
-    static toggleVisibility(toHide, cardId){
+    static toggleVisibility(toHide, cardId) {
         /**
          * toHide argument is a boolean value. If true - card will be hidden, if false - shown;
          * */
         let card;
 
-        if(cardId.includes("#")){
-           card = document.querySelector(cardId);
-        }else{
+        if (cardId.includes("#")) {
+            card = document.querySelector(cardId);
+        } else {
             card = document.querySelector(`#${cardId}`);
         }
 
@@ -72,16 +74,16 @@ export class Visit {
     }
 
     static insertElementNextToAnotherElement(staticElement, elementToInsert) {
-        if(!Array.isArray(elementToInsert)){
+        if (!Array.isArray(elementToInsert)) {
             elementToInsert = [elementToInsert]
         }
 
-        elementToInsert.forEach(item =>{
+        elementToInsert.forEach(item => {
             staticElement.after(item);
         })
     }
 
-    static async createVisitCard(formElements){
+    static async createVisitCard(formElements) {
         let visitDetails = formElements.card
         let formElementsObj = Object.assign(formElements)
 
@@ -96,19 +98,19 @@ export class Visit {
         return await API.saveCard(visitDetails);
     }
 
-    static async renderCards(parent, cards){
+    static async renderCards(parent, cards) {
         if (!Array.isArray(cards)) {
             cards = [cards]
         }
 
         cards.forEach(card => {
-            if(card.doctor.elementValue === "Терапевт"){
+            if (card.doctor.elementValue === "Терапевт") {
                 const therapistCard = new VisitTherapist(card).renderCard();
                 parent.append(therapistCard.cardContainer);
-            }else if(card.doctor.elementValue === "Кардиолог"){
+            } else if (card.doctor.elementValue === "Кардиолог") {
                 const cardiologistCard = new VisitCardiologist(card).renderCard();
                 parent.append(cardiologistCard.cardContainer);
-            } else if(card.doctor.elementValue === "Стоматолог"){
+            } else if (card.doctor.elementValue === "Стоматолог") {
                 const dentistCard = new VisitDentist(card).renderCard();
                 parent.append(dentistCard.cardContainer);
             }
@@ -126,9 +128,13 @@ export class Visit {
                     label: classListObj.label,
                     input: classListObj.inputDisabled
                 }, "", {
+                    label: {
+                        hidden: true,
+                    },
                     input: {
                         value: objectValue.elementValue,
-                        disabled: true
+                        disabled: true,
+                        name: objectKey
                     }
                 });
 
@@ -136,6 +142,8 @@ export class Visit {
             }
         }
 
+        elements.fullName.hidden = false;
+        elements.doctor.hidden = false;
 
         elements.showMoreButton = new DOMElement("button", classListObj.button, "Показать больше").render();
 
@@ -160,7 +168,7 @@ export class Visit {
         });
 
         elements.deleteBtn.addEventListener("click", async (event) => await this.deleteCard(elements.cardContainer, this.id));
-        elements.editBtn.addEventListener("click", async event =>await this.editCard());
+        elements.editBtn.addEventListener("click", async event => await this.editCard());
 
         elements.actionsContainer.append(elements.editBtn, elements.deleteBtn);
         elements.cardContainer.insertAdjacentHTML("afterbegin", elements.editSVG);
@@ -168,12 +176,69 @@ export class Visit {
         elements.cardContainer.append(
             elements.fullName,
             elements.doctor,
+            elements.priority,
+            elements.reason,
+            elements.description,
             elements.actionsContainer,
             elements.editSVGButton,
             elements.showMoreButton
         );
 
         return elements
+    }
+
+    extendCard() {
+        const {visitDetails, elements, classListObj, SVGParams} = this;
+
+        const root = document.querySelector("#root");
+
+        let cardCopy = elements.cardContainer.cloneNode(true)
+        const cardCopyChildren = [...cardCopy.children];
+
+        const cardFields = cardCopyChildren.filter(child => child.tagName.toLowerCase() === "label");
+        cardFields.forEach(item => item.hidden = false);
+
+        let showMoreBtn = cardCopyChildren
+            .find(child => child.tagName.toLowerCase() === "button" && child.classList.contains(classListObj.button || classListObj.button.join(" ")));
+        let editSVGButton = cardCopyChildren
+            .find(child => child.tagName.toLowerCase() === "button" && child.className.includes(classListObj.editSVGButton.join(" ")));
+        let actionsContainer = cardCopyChildren
+            .find(child => child.classList.contains(classListObj.actionsContainer));
+        let deleteBtn = [...actionsContainer.children].find(child => child.className.includes(classListObj.deleteBtn.join(" ")));
+        let editBtn = [...actionsContainer.children].find(child => child.classList.contains(classListObj.editBtn));
+
+
+        let lastLabel = cardCopyChildren.filter(child => child.tagName.toLowerCase() === "label").pop();
+        let modalWrapper = new DOMElement("div", "modal-wrapper").render();
+
+
+        let actionContainerTrigger = false;
+        editSVGButton.addEventListener("click", event => {
+            actionsContainer.hidden = actionContainerTrigger;
+            actionContainerTrigger = !actionContainerTrigger;
+        });
+
+        editBtn.addEventListener("click", async event => {
+            await this.editCard(cardCopy)
+        });
+
+        deleteBtn.addEventListener("click", async (event) =>{
+            modalWrapper.remove()
+            await this.deleteCard(elements.cardContainer, this.id);
+        });
+
+
+        modalWrapper.addEventListener("click", ({target}) => {
+            if (target === modalWrapper || target === showMoreBtn) {
+                modalWrapper.remove()
+            }
+        })
+
+        showMoreBtn.textContent = "Скрыть";
+
+
+        modalWrapper.append(cardCopy);
+        root.append(modalWrapper);
     }
 
     async deleteCard(elementToDelete, cardId) {
@@ -188,95 +253,117 @@ export class Visit {
         }
     }
 
-    toggleVisibility() {
+    async editCard(card = this.elements.cardContainer) {
         const {visitDetails, elements, classListObj, SVGParams} = this;
-        const {cardContainer} = elements;
-        cardContainer.hidden = !cardContainer.hidden
-    }
-
-    extendCard() {
-
-    }
-
-    async editCard() {
-        const {visitDetails, elements, classListObj, SVGParams} = this;
-        if (!Array.isArray(classListObj.input)){
+        if (!Array.isArray(classListObj.input)) {
             classListObj.input = [classListObj.input]
         }
 
-        const labels = [...elements.cardContainer.children].filter(child => child.tagName.toLowerCase() === "label");
+        let actionsContainer, editBtn;
+
+        if (card !== elements.cardContainer) {
+            actionsContainer = [...card.children].find(child => {
+                if (child.tagName.toLowerCase() !== "svg"){
+                    return child.className.includes(classListObj.actionsContainer);
+                }
+            })
+            editBtn = [...actionsContainer.children].find(child => {
+                   return child.className.includes(classListObj.editBtn)
+            });
+
+        } else {
+            editBtn = elements.editBtn
+        }
+
+        const labels = [...card.children].filter(child => child.tagName.toLowerCase() === "label");
         labels.forEach(label => {
+
             [...label.children].forEach(async child => {
+
                 if (child.disabled === true) {
                     child.className = classListObj.input.join(" ")
                     child.disabled = false;
-                    elements.editBtn.textContent = "Готово";
-                    elements.editBtn.classList.add("edit__btn--hover-green")
+                    editBtn.textContent = "Готово";
+                    editBtn.classList.add("edit__btn--hover-green")
                 } else {
-                    await this.applyChanges()
-                    elements.editBtn.classList.remove("edit__btn--hover-green")
-                    elements.editBtn.textContent = "Изменить";
+                    editBtn.classList.remove("edit__btn--hover-green")
+                    editBtn.textContent = "Изменить";
                     child.className = classListObj.inputDisabled.join(" ")
                     child.disabled = true;
                 }
             });
         });
+                    await this.applyChanges(card)
+
+
     }
 
-    async applyChanges() {
+    async applyChanges(card = this.elements.cardContainer) {
         const {visitDetails, elements, classListObj, SVGParams} = this;
 
         let labelsObj = {};
-
-        for (let [objectKey, objectValue] of Object.entries(elements)){
-            if (typeof (objectValue) !== "string"){
-                if (objectValue.tagName.toLowerCase() === "label"){
+        for (let [objectKey, objectValue] of Object.entries(elements)) {
+            if (typeof (objectValue) !== "string") {
+                if (objectValue.tagName.toLowerCase() === "label") {
                     labelsObj[objectKey] = objectValue.children[0].value;
                 }
             }
         }
 
-        for(let [objectKey, objectValue] of Object.entries(labelsObj)){
-            visitDetails[objectKey].elementValue = elements[objectKey].children[0].value
+
+        if (card !== elements.cardContainer) {
+            let cardInputs = [...card.children]
+                .filter(child => child.tagName.toLowerCase() === "label")
+                .map(label => label.children[0]);
+
+            for(let [objectKey, objectValue] of Object.entries(labelsObj)){
+                labelsObj[objectKey] = cardInputs.find(item => item.name === objectKey).value
+            }
         }
 
-        const response = await API.editCard(this.id,visitDetails);
+        for (let [objectKey, objectValue] of Object.entries(labelsObj)) {
+            visitDetails[objectKey].elementValue = labelsObj[objectKey];
+        }
+
+        for (let [objectKey, objectValue] of Object.entries(visitDetails)){
+            if(objectKey !== 'id'){
+                elements[objectKey].children[0].value = visitDetails[objectKey].elementValue
+            }
+        }
+
+        const response = await API.editCard(this.id, visitDetails);
     }
 }
 
 export class VisitTherapist extends Visit {
     renderCard() {
-        return super.render();
-    }
-    extendCard(flag) {
-        /**flag is a boolean value. True - the card needs to be extended
-         * False - the card needs to be compressed  */
         const {visitDetails, elements, classListObj, SVGParams} = this;
-        super.extendCard()
-        const root = document.querySelector("#root");
-        if (flag) {
-            const modalWrapper = new DOMElement("div", "modal-wrapper").render();
-            elements.showMoreButton.textContent = "Скрыть"
-            root.append(modalWrapper);
-            modalWrapper.append(elements.cardContainer);
-            Visit.insertElementNextToAnotherElement(elements.doctor,
-                [elements.description, elements.priority, elements.reason, elements.age,]);
-        }else{
-            const modalWrapper = document.querySelector(".modal-wrapper");
-            elements.showMoreButton.textContent = "Показать больше";
-            modalWrapper.remove()
-        }
+        super.render();
+
+        Visit.insertElementNextToAnotherElement(elements.reason, elements.age);
+        return elements;
     }
+
 }
 
 export class VisitDentist extends Visit {
     renderCard() {
-        return super.render()
+        const {visitDetails, elements, classListObj, SVGParams} = this;
+        super.render();
+
+        Visit.insertElementNextToAnotherElement(elements.reason, elements.previousVisitDate);
+        return elements
     }
 }
 
 export class VisitCardiologist extends Visit {
     renderCard() {
-        return super.render()
+        const {visitDetails, elements, classListObj, SVGParams} = this;
+        super.render();
+
+        Visit.insertElementNextToAnotherElement(elements.reason,
+            [elements.bloodPressure, elements.bmi, elements.heartDiseases, elements.age]);
+
+        return elements;
     }
 }
