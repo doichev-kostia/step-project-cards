@@ -251,7 +251,7 @@ export class Visit {
 
         if (priorityInput.value === "low"){
             priorityInput.value = "Обычная"
-        } else if(priorityInput.value === "medium"){
+        } else if(priorityInput.value === "normal"){
             priorityInput.value = "Приоритетная"
         } else if (priorityInput.value === "high"){
             priorityInput.value = "Неотложная"

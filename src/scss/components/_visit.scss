@@ -8,7 +8,8 @@
   flex-direction: column;
   align-items: flex-start;
   padding: 24px 16px;
-  width: 373px;
+  min-width: 373px;
+  max-width: 550px;
   max-height: 500px;
   overflow-y: scroll;
   border-radius: 10px;
@@ -47,7 +48,8 @@
     height: 20px;
     position: absolute;
     right: 10px;
-    top: 10px;
+    top: 15px;
+    cursor: pointer;
   }
 
   &__icon-button{
@@ -73,8 +75,8 @@
   &__container{
     max-width: 82px;
     position: absolute;
-    top: 30px;
-    right: 10px;
+    top: 35px;
+    right: 14px;
     border-radius: 5px;
     border: 1px solid #DADADA;
     background-color: #f9f9f9;
