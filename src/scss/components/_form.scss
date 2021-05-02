@@ -28,6 +28,7 @@
 
   &__label {
     @include defaultFormStyles;
+    position: relative;
     background: transparent;
     padding: .3em 0;
     margin: 0;
@@ -40,4 +41,11 @@
     color: #585f73;
     align-self: self-start;
   }
+}
+
+.eye-icon{
+  cursor: pointer;
+  position: absolute;
+  top: 53px;
+  right: 14px;
 }

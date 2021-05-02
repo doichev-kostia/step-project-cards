@@ -1,7 +1,13 @@
 import API from "./API.js";
 import DOMElement from "./DOMElement.js";
 import {createEditSVG} from "./CreateSVG.js";
-import {Form, VisitForm, VisitFormDentist, VisitFormTherapist, VisitFormCardiologist} from "./Form.js";
+import {
+    Form,
+    VisitForm,
+    VisitFormDentist,
+    VisitFormTherapist,
+    VisitFormCardiologist
+} from "./Form.js";
 
 /** Object with default CSS classes */
 const defaultClasses = {
@@ -124,7 +130,7 @@ export class Visit {
             elementToInsert = [elementToInsert];
         }
 
-        if (place === "after" || place === "before"){
+        if (place === "after" || place === "before") {
             elementToInsert.forEach(item => {
                 staticElement[place](item);
             })
@@ -249,11 +255,11 @@ export class Visit {
 
         let priorityInput = elements.priority.children[0];
 
-        if (priorityInput.value === "low"){
+        if (priorityInput.value === "low") {
             priorityInput.value = "Обычная"
-        } else if(priorityInput.value === "normal"){
+        } else if (priorityInput.value === "normal") {
             priorityInput.value = "Приоритетная"
-        } else if (priorityInput.value === "high"){
+        } else if (priorityInput.value === "high") {
             priorityInput.value = "Неотложная"
         }
 
@@ -301,7 +307,7 @@ export class Visit {
             extendFlag = !extendFlag
         });
 
-        elements.deleteBtn.addEventListener("click", async (event) =>{
+        elements.deleteBtn.addEventListener("click", async (event) => {
             await this.deleteCard(elements.cardContainer, this.id);
         });
 
@@ -339,29 +345,41 @@ export class Visit {
         const root = document.querySelector("#root");
         let cardCopy = elements.cardContainer.cloneNode(true)
         const cardCopyChildren = [...cardCopy.children];
+
+        for (let [key, value] of Object.entries(classListObj)) {
+            if (!Array.isArray(value)) {
+                classListObj[key] = [value]
+            }
+        }
+
         const cardFields = cardCopyChildren.filter(child => {
-           return child.tagName.toLowerCase() === "label"
+            return child.tagName.toLowerCase() === "label"
         });
+
         cardFields.forEach(item => item.hidden = false);
         let showMoreBtn = cardCopyChildren
             .find(child => {
                 return child.tagName.toLowerCase() === "button" &&
-                child.classList.contains(classListObj.button || classListObj.button.join(" "))
+                    child.className === classListObj.button.join(" ")
             });
 
         let editSVGButton = cardCopyChildren
             .find(child => child.tagName.toLowerCase() === "button" &&
-                child.className.includes(classListObj.editSVGButton.join(" ")));
+                child.className === classListObj.editSVGButton.join(" "));
 
         let actionsContainer = cardCopyChildren
-            .find(child => child.classList.contains(classListObj.actionsContainer));
+            .find(child => {
+                if(child.tagName.toLowerCase() !== "svg"){
+                    return child.className === classListObj.actionsContainer.join(" ")
+                }
+            });
 
         let deleteBtn = [...actionsContainer.children].find(child => {
-            return child.className.includes(classListObj.deleteBtn.join(" "))
+            return child.className === classListObj.deleteBtn.join(" ");
         });
 
         let editBtn = [...actionsContainer.children].find(child => {
-            return child.classList.contains(classListObj.editBtn)
+            return child.className === classListObj.editBtn.join(" ")
         });
 
         let modalWrapper = new DOMElement("div",
@@ -378,7 +396,7 @@ export class Visit {
             await this.editCard(cardCopy)
         });
 
-        deleteBtn.addEventListener("click", async (event) =>{
+        deleteBtn.addEventListener("click", async (event) => {
             modalWrapper.remove()
             await this.deleteCard(elements.cardContainer, this.id);
         });
@@ -424,20 +442,24 @@ export class Visit {
      * */
     async editCard(card = this.elements.cardContainer) {
         const {visitDetails, elements, classListObj, SVGParams} = this;
-        if (!Array.isArray(classListObj.input)) {
-            classListObj.input = [classListObj.input]
+
+        for (let [key, value] of Object.entries(classListObj)) {
+            if (!Array.isArray(value)) {
+                classListObj[key] = [value]
+            }
         }
+
 
         let actionsContainer, editBtn;
 
         if (card !== elements.cardContainer) {
             actionsContainer = [...card.children].find(child => {
-                if (child.tagName.toLowerCase() !== "svg"){
-                    return child.className.includes(classListObj.actionsContainer);
+                if (child.tagName.toLowerCase() !== "svg") {
+                    return child.className === classListObj.actionsContainer.join(" ")
                 }
             })
             editBtn = [...actionsContainer.children].find(child => {
-                return child.className.includes(classListObj.editBtn)
+                return child.classList.contains(classListObj.editBtn[0]);
             });
 
         } else {
@@ -447,6 +469,7 @@ export class Visit {
         const labels = [...card.children].filter(child => {
             return child.tagName.toLowerCase() === "label"
         });
+
         labels.forEach(label => {
 
             [...label.children].forEach(async child => {
@@ -490,7 +513,7 @@ export class Visit {
                 .filter(child => child.tagName.toLowerCase() === "label")
                 .map(label => label.children[0]);
 
-            for(let [objectKey, objectValue] of Object.entries(labelsObj)){
+            for (let [objectKey, objectValue] of Object.entries(labelsObj)) {
                 labelsObj[objectKey] = cardInputs.find(item => {
                     return item.name === objectKey
                 }).value
@@ -501,8 +524,8 @@ export class Visit {
             visitDetails[objectKey].elementValue = labelsObj[objectKey];
         }
 
-        for (let [objectKey, objectValue] of Object.entries(visitDetails)){
-            if(objectKey !== 'id'){
+        for (let [objectKey, objectValue] of Object.entries(visitDetails)) {
+            if (objectKey !== 'id') {
                 elements[objectKey].children[0].value = visitDetails[objectKey].elementValue
             }
         }
