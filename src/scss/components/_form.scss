@@ -12,11 +12,24 @@
 
   &__input {
     @include defaultFormStyles;
+    border: 1px solid transparent;
+    outline: none;
+
+    &:valid{
+      border-color: #44c110;
+    }
+
   }
 
   &__select {
     @include defaultFormStyles;
     max-width: 100%;
+    border: 1px solid transparent;
+    outline: none;
+
+    &:required:valid{
+      border-color: #44c110;
+    }
   }
 
   &__textarea {
