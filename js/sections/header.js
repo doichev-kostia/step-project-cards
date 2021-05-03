@@ -9,7 +9,7 @@ import {filterContainer,createFilter} from '../components/filter.js'
 const root = document.querySelector('#root');
 const header = new DOMElement("header", ["header", "wrapper"]).render();
 const logoWrapper = new DOMElement("a", "logo-wrapper", "", {href: "#"}).render();
-const logo = new DOMElement("img", "logo", "", {src: "../dist/img/logo.png"}).render();
+const logo = new DOMElement("img", "logo", "", {src: "./dist/img/logo.png"}).render();
 const logInButton = new DOMElement("button", ["btn", "logInBtn"], "Вход").render();
 const logInModal = new ModalLogIn(root, 'Вход', {
     modalWrapper: 'modal-wrapper',
