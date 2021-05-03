@@ -1,176 +1,147 @@
 import API from "../components/API.js";
-import Form from "../components/Form.js";
-import {Select, Button, TextArea, Input, CreateElement} from "../components/CreateElements.js"
-import {ModalLogin, ModalCreateVisit, ModalShowCard} from "../components/Modal.js"
+import {Form, VisitForm, VisitFormDentist, VisitFormTherapist, VisitFormCardiologist} from "../components/Form.js";
+import {Visit, VisitDentist, VisitTherapist, VisitCardiologist} from "../components/Visit.js";
+import DOMElement from "../components/DOMElement.js"
+import {ModalLogIn, ModalCreateVisit} from "../components/Modal.js";
+import {noVisitMessage, visitSection} from "./main.js";
+import {filterContainer,createFilter} from '../components/filter.js'
 
+const root = document.querySelector('#root');
+const header = new DOMElement("header", ["header", "wrapper"]).render();
+const logoWrapper = new DOMElement("a", "logo-wrapper", "", {href: "#"}).render();
+const logo = new DOMElement("img", "logo", "", {src: "../dist/img/logo.png"}).render();
+const logInButton = new DOMElement("button", ["btn", "logInBtn"], "Вход").render();
+const logInModal = new ModalLogIn(root, 'Вход', {
+    modalWrapper: 'modal-wrapper',
+    modal: 'modal',
+    crossButton: 'cross',
+    title: 'modal__title',
+    submitButton: ['btn', "submit-btn"]
+});
+const createVisitButton = new DOMElement("button", ["btn", "visitBtn"], "Создать визит").render()
 
-export default function createHeaderSection() {
-    const root = document.querySelector('#root');
+export default async function createHeaderSection(authorized) {
+    root.append(header);
+    header.append(logoWrapper);
+    logoWrapper.append(logo);
 
-    function createLoginButton(parent) {
-        const button = new Button(parent, "Вход", ["btn", "logInBtn"]);
-        const createdButton = button.render();
-        createdButton.addEventListener("click", event => {
-            const modal = new ModalLogin(root, 'Вход', ['modal-btn', "btn"])
-            modal.render()
+    if(authorized){
+        header.append(createVisitButton);
+        await renderAllUserCards()
+    }else{
+        header.append(logInButton)
+        let modalElements = await new Promise((resolve, reject) => {
+            logInButton.addEventListener("click", event => {
+                resolve(logInModal.render())
+            })
         })
-    }
 
-    const header = new CreateElement("header", ["header", "wrapper"]).render();
-    const logoWrapper = new CreateElement("a", ["logo-wrapper"]).render();
-    const logo = new CreateElement("img", ["logo"]).render();
-    logo.src = "../dist/img/logo.png";
-
-    const TODELETE = document.createElement("div");
-    TODELETE.classList.add("wrapper");
-
-    root.append(header, TODELETE);
-    header.append(logoWrapper)
-    createLoginButton(header);
-    logoWrapper.append(logo)
-
-
-
-
-    function test(){
-        const form = new Form(TODELETE, "form");
-        const formElement = form.render();
-        const chooseDoctor = form.createSelect(
-            ["Выберите врача:","Кардиолог", "Стоматолог", "Терапевт"],
-            ["chooseDoctor", "cardiologist", "dentist", "therapist"],
-            {
-                select: "form-select",
-                options: "form-option"
-            });
-        const fullName = form.createInput("ФИО","form-input", "text");
-        const priority = form.createSelect(
-            ["Срочность","Обычная","Приоритетная","Неотложная"],
-            ["priority", "medium", "high", "crucial"],
-            {
-                select: "form-select",
-                options: "form-option"
-            }
-        );
-        const reason = form.createInput("Цель визита","form-input", "text");
-        const description = form.createTextArea("Краткое описание",
-            "description",
-            {
-                label: "form-label",
-                textArea: "form-textarea"
-            });
-
-        chooseDoctor[1].disabled = true;
-        priority[1].disabled = true;
-
-        chooseDoctor[0].addEventListener("change", event=>{
-            let value = event.currentTarget.value;
-            doctorFormSet(value, form.elements.form )
-        })
-    }
-
-    function doctorFormSet(chosenDoctor, parent){
-            if (chosenDoctor === "cardiologist"){
-                cardiologistSet(true, parent, chosenDoctor);
-            }else if (chosenDoctor === "dentist"){
-                dentistSet(true, parent, chosenDoctor);
-            }else if( chosenDoctor === "therapist"){
-                therapistSet(true, parent, chosenDoctor);
-            }
-    }
-
-    function deleteDoctorSet(parent, doctor){
-        let toDelete = [...parent.children].filter(child =>child.dataset.doctor !== doctor && child.dataset.doctor !== undefined )
-
-        if (toDelete.length > 0){
-            toDelete.forEach(elem => elem.remove());
+        if (await ModalLogIn.verifyLogInData({...modalElements, logInButton, createVisitButton})) {
+            await renderAllUserCards()
         }
     }
 
-    function therapistSet(flag, parent, doctor) {
-        /**
-         * flag is a boolean value that informs to append the element(true) or delete it(false)
-         * */
-
-        let age;
-        if (flag) {
-            age = new Input(parent, "Возраст", "form-input", "number");
-            const ageElem = age.render();
-            ageElem.dataset.doctor = doctor
-            ageElem.min = "0";
-            ageElem.max = "120";
-            ageElem.title = "Введите значение от 0 до 120";
-
-            cardiologistSet(false, parent, doctor);
-            dentistSet(false, parent, doctor)
-        } else {
-            deleteDoctorSet(parent, doctor)
-        }
-    }
-
-    function dentistSet(flag, parent, doctor) {
-        /**
-         * flag is a boolean value that informs to append the element(true) or delete it(false)
-         * */
-
-        let date;// Previous appointment date
-        if (flag) {
-            date = new Input(parent, "Дата последнего визита", "form-input", "date");
-            const dateEl = date.render()
-            dateEl.dataset.doctor = doctor
-
-            therapistSet(false, parent, doctor);
-            cardiologistSet(false, parent, doctor);
-        } else {
-            deleteDoctorSet(parent, doctor)
-        }
-    }
-
-    function cardiologistSet(flag, parent, doctor) {
-        /**
-         * flag is a boolean value that informs to append the element(true) or delete it(false)
-         * */
-
-        let bp;//Blood Pressure
-        let bmi;// body mass index
-        let diseases;
-        let age;
-
-        if (flag){
-            bp = new Input(parent, "Обычное давление", "form-input", "number");
-            const bpElem = bp.render()
-            bpElem.dataset.doctor = doctor
-            bpElem.max = "160";
-            bpElem.min = "50";
-            bpElem.title = "Введите значение между 50 и 160";
-
-            bmi = new Input(parent, "Индекс массы тела", "form-input", "number");
-            const bmiElem = bmi.render()
-            bmiElem.dataset.doctor = doctor
-            bmiElem.min = "10";
-            bmiElem.max = "60";
-            bmiElem.title = "Введите значение от 10 до 60";
-
-            diseases = new Input(parent, "Перенесенные заболевания сердечно-сосудистой системы", "form-input", "text");
-            const diseasesElem = diseases.render()
-            diseasesElem.dataset.doctor = doctor
-
-            age = new Input(parent, "Возраст", "form-input", "number");
-            const ageElem = age.render()
-            ageElem.dataset.doctor = doctor
-            ageElem.min = "0";
-            ageElem.max = "120";
-            ageElem.maxLength = "3"
-            ageElem.title = "Введите значение от 0 до 120"
-
-            dentistSet(false, parent, doctor);
-            therapistSet(false, parent, doctor);
-        }else {
-            deleteDoctorSet(parent, doctor)
-        }
-    }
-
-    test()
+    await createVisitModal(createVisitButton);
+    createFilter(filterContainer)
 }
 
-createHeaderSection()
+async function renderAllUserCards() {
+    let allUserCards = await API.getAllCards()
+    if (allUserCards.length > 0) {
+        noVisitMessage.hidden = true
+        await Visit.renderCards(visitSection, allUserCards);
+    } else {
+        noVisitMessage.hidden = false;
+    }
+}
+
+
+function createVisitModal(visitButton) {
+    visitButton.addEventListener('click', () => {
+        createVisitForm()
+    })
+}
+
+async function createVisitForm() {
+
+    const visitModal = new ModalCreateVisit(root, "Создать визит", {
+        modalWrapper: 'modal-wrapper',
+        modal: 'modal',
+        crossButton: 'cross',
+        title: 'modal__title',
+        submitButton: ['btn'],
+        form: "form"
+    }).render()
+
+    const {modalWrapper, modal} = visitModal;
+
+    let form = new Form();
+
+    let doctorSelect = form.renderSelect("*Выберите врача: ",
+        ["", "therapist", "dentist", "cardiologist"],
+        {label: "form__label", select: "form__select", options: "form__options"},
+        ["Выберите врача: ", "Терапевт", "Стоматолог", "Кардиолог"])
+
+    doctorSelect.children[0].children[0].disabled = true;
+
+    const hint = new DOMElement("span",
+        "form__hint",
+        "Поля с * обязательны для заполнения").render()
+
+    form = form.renderForm()
+    form.append(hint, doctorSelect);
+    modal.append(form);
+
+    doctorSelect.addEventListener("change", event => handleSelectClick(event));
+
+    function handleSelectClick(event) {
+        let modalForms = [...event.target.closest(".modal").children]
+            .filter(child => child.tagName.toLowerCase() === "form");
+
+        if (modalForms.length > 1) {
+            for (let i = 1; i < modalForms.length; i++) {
+                modalForms[i].remove()
+            }
+        }
+
+        let doctorForm = renderChosenDoctorForm(modal, event.target.value)
+
+        doctorForm.submitButton.addEventListener("click", async (event) => {
+            await Form.validateForm(doctorForm)
+        })
+
+        modal.append(doctorForm.form)
+    }
+
+}
+
+function renderChosenDoctorForm(modal, chosenDoctor) {
+    const standardArgumentsSet = {
+        form: "form",
+        label: "form__label",
+        input: "form__input",
+        textarea: "form__textarea",
+        select: "form__select",
+        options: "form__option",
+        button: ["btn", "form__btn"]
+    }
+
+    const cardiologist = new VisitFormCardiologist(standardArgumentsSet);
+    const dentist = new VisitFormDentist(standardArgumentsSet);
+    const therapist = new VisitFormTherapist(standardArgumentsSet);
+
+    if (chosenDoctor === "cardiologist") {
+        dentist.deleteSelf()
+        therapist.deleteSelf()
+        return cardiologist.renderDoctorSet()
+    } else if (chosenDoctor === "dentist") {
+        therapist.deleteSelf()
+        cardiologist.deleteSelf()
+        return dentist.renderDoctorSet()
+    } else if (chosenDoctor === "therapist") {
+        dentist.deleteSelf()
+        cardiologist.deleteSelf()
+        return therapist.renderDoctorSet()
+    }
+}
 

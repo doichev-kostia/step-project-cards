@@ -1,8 +1,19 @@
 import API from "./components/API.js";
-import Form from "./components/Form.js";
-import {Select, Button, TextArea, Input, CreateElement} from "./components/CreateElements.js"
-import {ModalLogin, ModalCreateVisit, ModalShowCard} from "./components/Modal.js"
-import Header from "./sections/header.js"
+import {Form, VisitForm} from "./components/Form.js";
+import  DOMElement from "./components/DOMElement.js"
+import {ModalLogIn, ModalCreateVisit} from "./components/Modal.js"
+import Footer from "./sections/footer.js"
+import createHeaderSection from "./sections/header.js";
+import createMainSection from "./sections/main.js";
+import createFooterSection from "./sections/footer.js";
+import {createFilter} from './components/filter.js'
+import {createEyeSVG} from "./components/CreateSVG.js";
 
-const root = document.querySelector('#root');
+if(sessionStorage.token){
+    createHeaderSection(true)
+}else{
+    createHeaderSection(false)
+}
 
+createMainSection()
+createFooterSection()

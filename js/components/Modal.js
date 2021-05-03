@@ -1,25 +1,27 @@
-import {Select, Button, TextArea, Input} from "./CreateElements.js"
+import DOMElement from "./DOMElement.js"
 import API from "./API.js"
-import Form from "./Form.js";
+import {Form, VisitForm} from "./Form.js";
+import {createEyeSVG, createEyeSlashSVG} from "./CreateSVG.js";
+
+/**
+ * @requires:
+ * parent - DOM element
+ * titleText - string
+ * textContent - string
+ * CSSClassObject - object with pairs {
+ *     attributeName: attributeValue
+ * }
+ * */
 
 export class Modal {
-    constructor(parent, text, CSSClass) {
+/**
+ * Creates a modal window
+ * */
 
-    }
-
-    render(){
-        // title
-        // let cross
-        // let btn = new Button(parent, textcontent, class)
-    }
-}
-
-export class ModalLogin extends Modal{
-    constructor(parent,title,btnClass) {
-        super()
+constructor(parent, titleText, CSSClassObject) {
         this.parent = parent;
-        this.title = title;
-        this.btnClass = btnClass;
+        this.titleText = titleText;
+        this.CSSClass = CSSClassObject;
         this.elements = {
             modalWrapper: document.createElement('div'),
             modal: document.createElement('div'),
@@ -27,82 +29,179 @@ export class ModalLogin extends Modal{
             title: document.createElement('p'),
         }
     }
-
-    addStyles(){
-        const {modalWrapper,modal,crossButton,title} = this.elements
-        modalWrapper.classList.add('modalWrapper');
-        modal.classList.add('modal')
-        crossButton.classList.add('cross')
-        title.classList.add('modal-title')
+    /**
+     * addStyles() method
+     * adds css classes to the components of a modal window
+     * */
+    addStyles() {
+        const {modalWrapper, modal, crossButton, title} = this.elements
+        modalWrapper.classList.add(this.CSSClass.modalWrapper)
+        modal.classList.add(this.CSSClass.modal)
+        crossButton.classList.add(this.CSSClass.crossButton)
+        title.classList.add(this.CSSClass.title)
     }
-    //добавляет css классы элементам
-
-    titleAddText(){
-        const {crossButton,title} = this.elements
-        title.textContent = this.title;
+    /**
+     * elementsAddTextContent() method
+     * adds text content to the modal window title and the cross sign to the close button
+     * */
+    elementsAddTextContent() {
+        const {crossButton, title} = this.elements
+        title.textContent = this.titleText;
         crossButton.textContent = 'X'
     }
-    //добавляет текстовый контент элементам
 
-    render(){
-        const {modalWrapper,modal,crossButton,title,} = this.elements
-        const form = new Form(modal, "form")
-        form.render()
-        const emailInput = form.createInput('email','email-input','email')
-        const passwordInput = form.createInput('password','password-input','password')
-        const loginButton = new Button(modal, "Вход",this.btnClass)
-        loginButton.render()
+    /**
+     * closeModal() method
+     * enables to close the modal window by clicking at the cross button or outside of the modal block
+     * */
+    closeModal() {
+        const {modalWrapper} = this.elements
+        modalWrapper.addEventListener('click', (event) => {
+            if (event.target.classList[0] === this.CSSClass.modalWrapper || event.target.classList[0] === this.CSSClass.crossButton) {
+                modalWrapper.remove()
+            }
+        })
+    }
+}
+
+export class ModalLogIn extends Modal {
+
+    /**
+     * render() method
+     * renders the login modal window onto the page.
+     * */
+
+    render() {
+        const {parent, titleText, CSSClass, elements} = this
+        const {modalWrapper, modal, crossButton, title} = elements
+        elements.form = new Form();
+
+        elements.emailInput = elements.form.renderInput('Email', {input: 'form__input', label: "form__label"}, '', {input:{
+                type: "email",
+                autocomplete: "username",
+                required: true
+        }});
+        elements.passwordInput = elements.form.renderInput('Password', {input: 'form__input', label: "form__label"}, 'password', {input:{
+                type: "password",
+                autocomplete: "current-password",
+                required: true
+            }});
+
+        elements.passwordInput.insertAdjacentHTML("beforeend", createEyeSVG("eye-icon", 20, 20, "#585f73"));
+        elements.passwordInput.insertAdjacentHTML("beforeend", createEyeSlashSVG(["eye-icon", "eye-icon-slash", "hidden"], 20, 20, "#585f73"));
+
+        elements.eyeIconSlash = [...elements.passwordInput.children]
+            .find(item => item.classList.contains("eye-icon-slash"));
+
+        elements.eyeIcon = [...elements.passwordInput.children]
+            .find(item => item.classList.contains("eye-icon"));
+
+        elements.eyeIcon.addEventListener("click", event =>{
+            elements.eyeIcon.classList.add("hidden")
+            elements.eyeIconSlash.classList.remove("hidden")
+            elements.passwordInput.children[0].type = "text";
+        })
+
+        elements.eyeIconSlash.addEventListener("click", event=>{
+           elements.eyeIconSlash.classList.add("hidden")
+            elements.eyeIcon.classList.remove("hidden")
+            elements.passwordInput.children[0].type = "password";
+        })
+
+        elements.submitButton = new DOMElement("button",  CSSClass.submitButton, "Войти", {type: "submit"}).render();
+
         this.addStyles()
         this.closeModal()
-        this.titleAddText()
-        this.parent.append(modalWrapper)
+        this.elementsAddTextContent()
+
+        elements.form = elements.form.renderForm();
+        elements.form.append(elements.emailInput, elements.passwordInput, elements.submitButton);
+        parent.append(modalWrapper)
         modalWrapper.append(modal)
-        modal.prepend(crossButton,title)
-        this.verifyUserData()
+        modal.prepend(crossButton, title, elements.form)
 
-        // emailInput.render()
-        // passwordInput.render()
+        return {
+            modalWrapper,
+            modal,
+            crossButton,
+            title,
+            form: elements.form,
+            submitButton: elements.submitButton,
+            emailInput: elements.emailInput,
+            passwordInput: elements.passwordInput,
+            eyeIconSlash: elements.eyeIconSlash,
+            eyeIcon: elements.eyeIcon
+        }
     }
-    //отрыгивает созданное на страницу
 
-    closeModal(){
-        const {modalWrapper,modal,crossButton} = this.elements
-        modalWrapper.addEventListener('click',(event)=>{
-            if (event.target.classList[0] === 'modalWrapper' || event.target.classList[0] === 'cross'){
-                modalWrapper.remove()
-            }
+    /**
+     * verifyLogInData(elements) method
+     * verifies the users' credentials
+     * */
+
+    static async verifyLogInData(elements) {
+        const {
+            form,
+            modalWrapper,
+            submitButton,
+            emailInput,
+            passwordInput,
+            createVisitButton,
+            logInButton
+        } = elements;
+
+        return new Promise((resolve, reject) => {
+            submitButton.addEventListener('click', async (event) => {
+                event.preventDefault();
+
+                const credentials = {
+                    email: emailInput.children[0].value,
+                    password: passwordInput.children[0].value,
+                }
+                const {email, password} = credentials;
+
+                try {
+                    await API.login({email, password});
+
+                    modalWrapper.remove()
+                    logInButton.replaceWith(createVisitButton)
+                    resolve(true)
+                } catch (e) {
+                    console.error(e)
+                    let error = new DOMElement('span', 'modal__error', 'Incorrect username or password').render();
+                    form.insertAdjacentElement('beforebegin', error);
+                    setTimeout(() => {
+                        error.remove()
+                    }, 2000)
+                    resolve(false)
+                }
+            })
         })
     }
-    //закрывает модальное окно по нажатию на крестик и вне области модалки
-
-    verifyUserData(){
-        document.querySelector('.modal-btn').addEventListener('click', async ()=>{
-            console.log(document.querySelector('.email-input'))
-            console.log(document.querySelector('.password-input'))
-            const credentials = {
-                email: document.querySelector('.email-input').value,
-                password: document.querySelector('.password-input').value,
-            }
-            const {email,password} = credentials;
-            const {modalWrapper,modal,crossButton} = this.elements
-
-            await API.login({email,password})
-            // debugger
-            if (API.token){
-                modalWrapper.remove()
-            }
-        })
-    }
-
 }
 
-export class ModalCreateVisit extends Modal{
-    constructor() {
-        super();
-    }
-}
+/**
+ * ModalCreateVisit class
+ * creates a modal window to submit users visits
+ * */
 
-export class ModalShowCard{
-    constructor() {
+export class ModalCreateVisit extends Modal {
+
+    render() {
+        const {parent, titleText, CSSClass, elements} = this
+        const {modalWrapper, modal, crossButton, title} = this.elements
+        this.addStyles()
+        this.elementsAddTextContent()
+        parent.append(modalWrapper)
+        modalWrapper.append(modal)
+        modal.prepend(crossButton, title)
+
+        this.closeModal()
+        return {
+            modalWrapper,
+            modal,
+            crossButton,
+            title,
+        }
     }
 }

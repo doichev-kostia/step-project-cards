@@ -1,4 +1,8 @@
-.modalWrapper{
+@import "../mixins";
+@import "../variables";
+@import "../common";
+
+.modal-wrapper{
   position: fixed;
   top: 0;
   left: 0;
@@ -10,27 +14,42 @@
   background-color: rgba(0,0,0,0.5);
 }
 
-.modal{
+.cross{
+  @include resetButtonStyles;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: $crossColor;
+  font-size: 24px;
+}
+
+.modal {
+  max-height: 500px;
+  padding: 30px 40px 30px 40px;
+  border-radius: 30px;
   background: #DADADA;
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: 850px;
+  min-width: 400px;
+  max-width: 850px;
   position: relative;
+  overflow: auto;
+
+
+  &__title {
+    color: $titleText;
+    @include commonBtnText;
+    font-weight: bold;
+    font-size: 42px;
+    line-height: 49px;
+  }
+
+  &__error {
+    color: red;
+    font-size: 24px;
+    text-align: center;
+    padding: .3em;
+  }
 }
 
-.cross{
-  position: absolute;
-  right: 10px;
-  top: 10px;
-  border: none;
-  background: transparent;
-  color: $crossColor;
-}
-.modal-title{
-  color: $titleText;
-  @include commonBtnText;
-  font-weight: bold;
-  font-size: 42px;
-  line-height: 49px;
-}
