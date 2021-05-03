@@ -1,0 +1,107 @@
+@import "../variables";
+@import "../mixins";
+@import "../common";
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 24px 16px;
+  min-width: 373px;
+  max-width: 550px;
+  max-height: 500px;
+  overflow-y: scroll;
+  border-radius: 10px;
+  border: 1px solid #DADADA;
+  background-color: #f9f9f9;
+  box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+
+
+  &__label {
+    width: 100%;
+    font-size: 22px;
+    padding: .5em .3em;
+    color: #9B9FAB;
+  }
+
+  &__input {
+    width: 100%;
+    overflow: auto;
+    padding: 0.3em 0 ;
+    margin: .3em 0;
+    border: none;
+    display: block;
+    border-radius: 5px;
+    font-size: 20px;
+    color: #585F73;
+  }
+
+  &__input--disabled {
+    margin: 0.3em 0;
+    background: transparent;
+    border: none;
+  }
+
+  &__icon {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 10px;
+    top: 15px;
+    cursor: pointer;
+  }
+
+  &__icon-button{
+    opacity: 0;
+  }
+
+
+  &__button {
+    @include resetButtonStyles;
+    font-size: 18px;
+    margin: 0 auto;
+    border: 1px solid #585F73;
+    box-sizing: border-box;
+    border-radius: 20px;
+    max-width: 180px;
+    color: #585F73;
+    padding: .2em .3em;
+  }
+}
+
+.edit{
+
+  &__container{
+    position: absolute;
+    top: 35px;
+    right: 14px;
+    border-radius: 5px;
+    border: 1px solid #DADADA;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 4px rgba(0, 0, 0, 0.25);
+  }
+
+  &__btn{
+    @include resetButtonStyles;
+    width: 100px;
+    box-sizing: border-box;
+    padding: .4em;
+    font-size: 15px;
+    color: #333333;
+
+    &:hover{
+      background-color: #ececec;
+    }
+  }
+
+  &__btn--hover-green:hover{
+    color: green;
+  }
+
+  &__btn--hover-red:hover{
+    color: red;
+    background-color: #ececec;
+  }
+}
+

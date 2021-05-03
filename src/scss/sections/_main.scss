@@ -1,0 +1,25 @@
+@import "../variables";
+@import "../mixins";
+@import "../common";
+
+.main{
+  margin-top: 20px;
+  min-height: 84vh;
+}
+
+.visit-section{
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(375px, 1fr));
+  grid-gap: 20px;
+  align-items: center;
+  padding: 20px;
+}
+
+.no-visit-message{
+  font-size: 50px;
+  text-align: center;
+  margin-top: auto;
+}
+
+
+

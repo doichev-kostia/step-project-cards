@@ -1,0 +1,83 @@
+@import "../mixins";
+@import "../variables";
+@import "../common";
+
+.modal-wrapper{
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.cross{
+  @include resetButtonStyles;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  color: $crossColor;
+  font-size: 24px;
+}
+
+.modal {
+  max-height: 500px;
+  padding: 30px 40px 30px 40px;
+  border-radius: 30px;
+  background: #DADADA;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 400px;
+  max-width: 850px;
+  position: relative;
+  overflow: auto;
+
+
+  &__title {
+    color: $titleText;
+    @include commonBtnText;
+    font-weight: bold;
+    font-size: 42px;
+    line-height: 49px;
+  }
+
+  &__error {
+    color: red;
+    font-size: 24px;
+    text-align: center;
+    padding: .3em;
+  }
+}
+
+.error-modal{
+  display: block;
+  text-align: center;
+
+  &__title{
+    text-align: center;
+    padding: .5em 0;
+  }
+
+  &__btn{
+    @include resetButtonStyles;
+    display: inline-block;
+    padding: .2em .3em;
+    width: 180px;
+    margin: 5px;
+    font-size: 18px;
+    color: #585f73;
+    border: 1px solid #585f73;
+    border-radius: 20px;
+    box-sizing: border-box;
+  }
+
+  &__btn--submit:hover{
+    color: #FFFFFF;
+    background-color: #d90000;
+  }
+}
+

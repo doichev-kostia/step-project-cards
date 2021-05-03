@@ -1,0 +1,27 @@
+@mixin commonBtnText {
+  font-family: Roboto, sans-serif;
+  font-size: 18px;
+  line-height: 18px;
+}
+
+@mixin resetButtonStyles{
+  outline: none;
+  display: block;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+
+@mixin defaultFormStyles{
+  border: none;
+  overflow: auto;
+  font-size: 24px;
+  padding: .3em .5em;
+  display: block;
+  margin: 10px 0;
+  width: 100%;
+  background: #fff;
+  border-radius: 5px;
+  color: #585f73;
+  box-sizing: border-box;
+}
