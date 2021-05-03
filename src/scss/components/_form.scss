@@ -12,11 +12,24 @@
 
   &__input {
     @include defaultFormStyles;
+    border: 1px solid transparent;
+    outline: none;
+
+    &:valid{
+      border-color: #44c110;
+    }
+
   }
 
   &__select {
     @include defaultFormStyles;
     max-width: 100%;
+    border: 1px solid transparent;
+    outline: none;
+
+    &:required:valid{
+      border-color: #44c110;
+    }
   }
 
   &__textarea {
@@ -28,8 +41,24 @@
 
   &__label {
     @include defaultFormStyles;
+    position: relative;
     background: transparent;
     padding: .3em 0;
     margin: 0;
   }
+
+  &__hint{
+    display: block;
+    font-size: 18px;
+    padding: 0.7em 0;
+    color: #585f73;
+    align-self: self-start;
+  }
+}
+
+.eye-icon{
+  cursor: pointer;
+  position: absolute;
+  top: 53px;
+  right: 14px;
 }

@@ -1,6 +1,7 @@
 import DOMElement from "./DOMElement.js"
 import API from "./API.js"
 import {Form, VisitForm} from "./Form.js";
+import {createEyeSVG, createEyeSlashSVG} from "./CreateSVG.js";
 
 /**
  * @requires:
@@ -13,11 +14,11 @@ import {Form, VisitForm} from "./Form.js";
  * */
 
 export class Modal {
-/**
- * Creates a modal window
- * */
+    /**
+     * Creates a modal window
+     * */
 
-constructor(parent, titleText, CSSClassObject) {
+    constructor(parent, titleText, CSSClassObject) {
         this.parent = parent;
         this.titleText = titleText;
         this.CSSClass = CSSClassObject;
@@ -56,7 +57,7 @@ constructor(parent, titleText, CSSClassObject) {
     closeModal() {
         const {modalWrapper} = this.elements
         modalWrapper.addEventListener('click', (event) => {
-            if (event.target.classList[0] === 'modalWrapper' || event.target.classList[0] === 'cross') {
+            if (event.target.classList[0] === this.CSSClass.modalWrapper || event.target.classList[0] === this.CSSClass.crossButton) {
                 modalWrapper.remove()
             }
         })
@@ -75,16 +76,38 @@ export class ModalLogIn extends Modal {
         const {modalWrapper, modal, crossButton, title} = elements
         elements.form = new Form();
 
-        elements.emailInput = elements.form.renderInput('', {input: 'form__input'}, 'email', {input:{
+        elements.emailInput = elements.form.renderInput('Email', {input: 'form__input', label: "form__label"}, '', {input:{
                 type: "email",
                 autocomplete: "username",
                 required: true
-        }});
-        elements.passwordInput = elements.form.renderInput('', {input: 'form__input'}, 'password', {input:{
+            }});
+        elements.passwordInput = elements.form.renderInput('Password', {input: 'form__input', label: "form__label"}, 'password', {input:{
                 type: "password",
                 autocomplete: "current-password",
                 required: true
             }});
+
+        elements.passwordInput.insertAdjacentHTML("beforeend", createEyeSVG("eye-icon", 20, 20, "#585f73"));
+        elements.passwordInput.insertAdjacentHTML("beforeend", createEyeSlashSVG(["eye-icon", "eye-icon-slash", "hidden"], 20, 20, "#585f73"));
+
+        elements.eyeIconSlash = [...elements.passwordInput.children]
+            .find(item => item.classList.contains("eye-icon-slash"));
+
+        elements.eyeIcon = [...elements.passwordInput.children]
+            .find(item => item.classList.contains("eye-icon"));
+
+        elements.eyeIcon.addEventListener("click", event =>{
+            elements.eyeIcon.classList.add("hidden")
+            elements.eyeIconSlash.classList.remove("hidden")
+            elements.passwordInput.children[0].type = "text";
+        })
+
+        elements.eyeIconSlash.addEventListener("click", event=>{
+            elements.eyeIconSlash.classList.add("hidden")
+            elements.eyeIcon.classList.remove("hidden")
+            elements.passwordInput.children[0].type = "password";
+        })
+
         elements.submitButton = new DOMElement("button",  CSSClass.submitButton, "Войти", {type: "submit"}).render();
 
         this.addStyles()
@@ -105,7 +128,9 @@ export class ModalLogIn extends Modal {
             form: elements.form,
             submitButton: elements.submitButton,
             emailInput: elements.emailInput,
-            passwordInput: elements.passwordInput
+            passwordInput: elements.passwordInput,
+            eyeIconSlash: elements.eyeIconSlash,
+            eyeIcon: elements.eyeIcon
         }
     }
 
@@ -130,8 +155,8 @@ export class ModalLogIn extends Modal {
                 event.preventDefault();
 
                 const credentials = {
-                    email: emailInput.value,
-                    password: passwordInput.value,
+                    email: emailInput.children[0].value,
+                    password: passwordInput.children[0].value,
                 }
                 const {email, password} = credentials;
 
