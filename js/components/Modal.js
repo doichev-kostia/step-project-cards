@@ -171,7 +171,7 @@ export class ModalLogIn extends Modal {
             createVisitButton,
             logInButton
         } = elements;
-
+        document.body.classList.remove("scroll-lock")
         return new Promise((resolve, reject) => {
             submitButton.addEventListener('click', async (event) => {
                 event.preventDefault();
