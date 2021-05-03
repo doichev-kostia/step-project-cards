@@ -107,7 +107,8 @@ export class Visit {
         if (cardId.includes("#")) {
             card = document.querySelector(cardId);
         } else {
-            card = document.querySelector(`#${cardId}`);
+            let id = `#${cardId}`
+            card = document.querySelector(id);
         }
 
         card.hidden = toHide;
