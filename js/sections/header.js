@@ -107,7 +107,6 @@ async function createVisitForm() {
         let doctorForm = renderChosenDoctorForm(modal, event.target.value)
 
         doctorForm.submitButton.addEventListener("click", async (event) => {
-            console.log(doctorForm)
             await Form.validateForm(doctorForm)
         })
 

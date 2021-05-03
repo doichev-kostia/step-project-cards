@@ -5,6 +5,7 @@ import {Visit, VisitDentist, VisitTherapist, VisitCardiologist} from "./Visit.js
 
 export let filterContainer = new DOMElement('div', ['filter-section', 'wrapper'], '').render()
 main.append(filterContainer)
+
 export function createFilter(parent) {
     let select = new DOMElement('select', 'filterSelect', 'Выберите врача').render()
     let selectPriority = new DOMElement('select', 'filterSelect', 'Выберите срочность').render()
@@ -29,9 +30,7 @@ export function createFilter(parent) {
         let chosenCards = []
         let allCards = await API.getAllCards()
         allCards.forEach(card => {
-            let cardContainer = document.getElementById(`${card.id}`)
-            cardContainer.hidden = true
-            cardContainer.style.display = 'none'
+            Visit.toggleVisibility(true, card.id)
             if (searchByDescription.value !== "") {
                 for (let [objectKey, objectValue] of Object.entries(card)) {
                     if (objectKey !== "id") {
@@ -60,11 +59,7 @@ export function createFilter(parent) {
             })
         }
         chosenCards.forEach(card => {
-            // Visit.toggleVisibility(false, card.id)
-            let cardContainer = document.getElementById(`${card.id}`)
-            cardContainer.hidden = false
-            cardContainer.style.display = 'block'
-
+            Visit.toggleVisibility(false, card.id)
         })
 
     })

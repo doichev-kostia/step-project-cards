@@ -103,13 +103,9 @@ export class Visit {
     static toggleVisibility(toHide, cardId) {
         let card;
         cardId = cardId.toString()
+        card = document.getElementById(cardId);
 
-        if (cardId.includes("#")) {
-            card = document.querySelector(cardId);
-        } else {
-            let id = `#${cardId}`
-            card = document.querySelector(id);
-        }
+        toHide ? card.style.display = "none" : card.style.display = "inherit"
 
         card.hidden = toHide;
     }
@@ -370,7 +366,7 @@ export class Visit {
 
         let actionsContainer = cardCopyChildren
             .find(child => {
-                if(child.tagName.toLowerCase() !== "svg"){
+                if (child.tagName.toLowerCase() !== "svg") {
                     return child.className === classListObj.actionsContainer.join(" ")
                 }
             });
@@ -522,11 +518,32 @@ export class Visit {
         }
 
         for (let [objectKey, objectValue] of Object.entries(labelsObj)) {
+            if (objectKey === "priority") {
+                if (labelsObj[objectKey].toLowerCase() === "обычная") {
+                    labelsObj[objectKey] = "low"
+                } else if (labelsObj[objectKey].toLowerCase() === "приоритетная") {
+                    labelsObj[objectKey] = "normal"
+                } else if (labelsObj[objectKey].toLowerCase() === "неотложная") {
+                    labelsObj[objectKey] = "high"
+
+                }
+            }
             visitDetails[objectKey].elementValue = labelsObj[objectKey];
         }
 
         for (let [objectKey, objectValue] of Object.entries(visitDetails)) {
             if (objectKey !== 'id') {
+                if (objectKey === "priority") {
+                    let priorityValue = visitDetails[objectKey].elementValue;
+                    if (priorityValue === "low") {
+                        elements[objectKey].children[0].value = "Обычная";
+                    } else if (priorityValue === "normal") {
+                        elements[objectKey].children[0].value = "Приоритетная";
+                    } else if (priorityValue === "high") {
+                        elements[objectKey].children[0].value = "Неотложная";
+                    }
+                    continue;
+                }
                 elements[objectKey].children[0].value = visitDetails[objectKey].elementValue
             }
         }

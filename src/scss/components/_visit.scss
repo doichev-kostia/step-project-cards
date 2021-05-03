@@ -73,7 +73,6 @@
 .edit{
 
   &__container{
-    max-width: 82px;
     position: absolute;
     top: 35px;
     right: 14px;
@@ -85,8 +84,15 @@
 
   &__btn{
     @include resetButtonStyles;
+    width: 100px;
+    box-sizing: border-box;
+    padding: .4em;
     font-size: 15px;
     color: #333333;
+
+    &:hover{
+      background-color: #ececec;
+    }
   }
 
   &__btn--hover-green:hover{
@@ -95,6 +101,7 @@
 
   &__btn--hover-red:hover{
     color: red;
+    background-color: #ececec;
   }
 }
 
