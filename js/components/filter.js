@@ -2,28 +2,36 @@ import DOMElement from "./DOMElement.js";
 import API from "./API.js";
 import {main} from '../sections/main.js'
 import {Visit, VisitDentist, VisitTherapist, VisitCardiologist} from "./Visit.js";
+import {createSearchIcon} from "./CreateSVG.js";
 
-export let filterContainer = new DOMElement('div', ['filter-section', 'wrapper'], '').render()
+export let filterContainer = new DOMElement('div', ['filter', 'wrapper'], '').render()
 main.append(filterContainer)
 
 export function createFilter(parent) {
-    let select = new DOMElement('select', 'filterSelect', 'Выберите врача').render()
-    let selectPriority = new DOMElement('select', 'filterSelect', 'Выберите срочность').render()
-    let searchByDescription = new DOMElement('input', 'filterSearch', 'Поиск по описанию').render()
-    let searchByDescriptionBtn = new DOMElement('button', 'filterSearchBtn', 'Поиск').render()
-    parent.prepend(select, selectPriority, searchByDescription, searchByDescriptionBtn);
+    let select = new DOMElement('select', 'filter__select').render()
+    let selectPriority = new DOMElement('select', 'filter__select').render()
+    let searchByDescriptionLabel = new DOMElement("label", "filter__label", "").render()
+    let searchByDescription = new DOMElement('input', 'filter__input', "", {placeholder: 'Поиск по описанию'}).render()
+    let searchByDescriptionBtn = new DOMElement('button', ["filter__btn", "btn"], 'Поиск').render()
+    let searchIcon = createSearchIcon("filter__icon", 20, 20, "#9aa0a6");
+
+    searchByDescriptionLabel.insertAdjacentHTML("afterbegin", searchIcon);
+    searchByDescriptionLabel.append(searchByDescription);
+    parent.prepend(select, selectPriority, searchByDescriptionLabel, searchByDescriptionBtn);
     //элементы фильтра поиска по врачу
-    let optionAll = new DOMElement('option', 'filterOption', 'Все').render()
-    let optionDentist = new DOMElement('option', 'filterOption', 'Стоматолог').render()
-    let optionCardiologist = new DOMElement('option', 'filterOption', 'Кардиолог').render()
-    let optionTherapist = new DOMElement('option', 'filterOption', 'Терапевт').render()
-    select.append(optionAll, optionDentist, optionCardiologist, optionTherapist)
+    let optionDescription = new DOMElement('option', 'filter__option', 'Врач', {disabled: true, value: '', selected: true}).render();
+    let optionAll = new DOMElement('option', 'filter__option', 'Все').render()
+    let optionDentist = new DOMElement('option', 'filter__option', 'Стоматолог').render()
+    let optionCardiologist = new DOMElement('option', 'filter__option', 'Кардиолог').render()
+    let optionTherapist = new DOMElement('option', 'filter__option', 'Терапевт').render()
+    select.append(optionDescription, optionAll, optionDentist, optionCardiologist, optionTherapist)
     //элементы фильтра поиска срочности
-    let priorityAll = new DOMElement('option', 'filterOption', 'Все').render()
-    let priorityLow = new DOMElement('option', 'filterOption', 'Обычная',{value:'low'}).render()
-    let priorityNormal = new DOMElement('option', 'filterOption', 'Приоритетная',{value:'normal'}).render()
-    let priorityHigh = new DOMElement('option', 'filterOption', 'Неотложная', {value:'high'}).render()
-    selectPriority.append(priorityAll, priorityLow, priorityNormal, priorityHigh)
+    let priorityDescription = new DOMElement('option', 'filter__option', 'Приоритетность', {disabled: true, value: '', selected: true}).render()
+    let priorityAll = new DOMElement('option', 'filter__option', 'Все').render()
+    let priorityLow = new DOMElement('option', 'filter__option', 'Обычная',{value:'low'}).render()
+    let priorityNormal = new DOMElement('option', 'filter__option', 'Приоритетная',{value:'normal'}).render()
+    let priorityHigh = new DOMElement('option', 'filter__option', 'Неотложная', {value:'high'}).render()
+    selectPriority.append(priorityDescription,priorityAll, priorityLow, priorityNormal, priorityHigh)
     //конец элементов фильтра поиска по срочности
 
     searchByDescriptionBtn.addEventListener("click", async event => {
@@ -46,14 +54,14 @@ export function createFilter(parent) {
         });
 
         let chosenDoctor = select.value.toLowerCase()
-        if (chosenDoctor !== "все") {
+        if (chosenDoctor !== "все" && chosenDoctor !== "") {
             chosenCards = chosenCards.filter(item => {
                 return item.doctor.elementValue.toLowerCase() === chosenDoctor;
             })
         }
 
         let chosenPriority = selectPriority.value.toLowerCase()
-        if (chosenPriority !== "все") {
+        if (chosenPriority !== "все" && chosenPriority !== "") {
             chosenCards = chosenCards.filter(item => {
                 return item.priority.elementValue.toLowerCase() === chosenPriority;
             })

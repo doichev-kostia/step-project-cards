@@ -8,6 +8,7 @@ import {
     VisitFormTherapist,
     VisitFormCardiologist
 } from "./Form.js";
+import {Modal, ModalLogIn, ModalCreateVisit} from "./Modal.js";
 
 /** Object with default CSS classes */
 const defaultClasses = {
@@ -184,8 +185,12 @@ export class Visit {
      *
      * */
     static async renderCards(parent, cards) {
+        const noVisitMessage = document.querySelector(".no-visit-message");
+        if (!noVisitMessage.hidden){
+            noVisitMessage.hidden = true;
+        }
         if (!Array.isArray(cards)) {
-            cards = [cards]
+            cards = [cards];
         }
 
         cards.forEach(card => {
@@ -305,7 +310,7 @@ export class Visit {
         });
 
         elements.deleteBtn.addEventListener("click", async (event) => {
-            await this.deleteCard(elements.cardContainer, this.id);
+            this.renderDeleteModal(elements.cardContainer, this.id)
         });
 
         elements.editBtn.addEventListener("click", async event => {
@@ -549,6 +554,39 @@ export class Visit {
         }
 
         await API.editCard(this.id, visitDetails);
+    }
+
+    async renderDeleteModal(cardContainer, id) {
+        const root = document.querySelector("#root")
+        const modal = new Modal(root, "Вы точно хотите удалить карточку?", {
+            modalWrapper: "modal-wrapper",
+            modal: ["modal", "error-modal"],
+            crossButton: "cross",
+            title: ["modal__title", "error-modal__title"]
+        }).render()
+
+        const submitBtn = new DOMElement(
+            "button",
+            ["error-modal__btn", "error-modal__btn--submit"],
+            "Удалить").render()
+
+        const cancelBtn = new DOMElement(
+            "button",
+            ["error-modal__btn", "error-modal__btn--cancel"],
+            "Отменить").render()
+
+        submitBtn.addEventListener("click", async event =>{
+            document.body.classList.remove("scroll-lock");
+            modal.modalWrapper.remove()
+            await this.deleteCard(cardContainer, id);
+        })
+
+        cancelBtn.addEventListener("click", event =>{
+            document.body.classList.remove("scroll-lock");
+            modal.modalWrapper.remove();
+        })
+
+        modal.modal.append(cancelBtn, submitBtn)
     }
 }
 

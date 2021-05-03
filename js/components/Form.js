@@ -59,11 +59,17 @@ export class Form {
             }
         }
 
+        // some extensions can cause errors e.g grammarly-extension
+        fields = fields.filter(field => !field.tagName.toLowerCase().includes("extension"))
+
         let notValidFields = fields.filter(item => !item.validity.valid);
         if (notValidFields.length === 0) {
             let card = await Visit.registerVisitCard(formElements);
             await Visit.renderCards(document.querySelector(".visit-section"), card);
-            document.querySelector(".modal-wrapper").remove()
+            let modalWrapper = document.querySelector(".modal-wrapper")
+            if (modalWrapper) {
+                modalWrapper.remove()
+            }
         }
     }
 
@@ -359,7 +365,13 @@ export class VisitForm extends Form {
                     type: "submit",
                     value: "Создать визит",
                 }
-            })
+            });
+
+        elements.submitButton.addEventListener("click", event =>{
+            document.body.classList.remove("scroll-lock")
+        })
+
+
 
         elements.form.append(
             elements.fullName,
