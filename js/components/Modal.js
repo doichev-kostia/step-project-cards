@@ -7,10 +7,12 @@ import {createEyeSVG, createEyeSlashSVG} from "./CreateSVG.js";
  * @requires:
  * parent - DOM element
  * titleText - string
- * textContent - string
  * CSSClassObject - object with pairs {
- *     attributeName: attributeValue
- * }
+ *     modalWrapper: "CSS class",
+ *     modal : "CSS class,
+ *     crossButton : "CSS class",
+ *     title : "CSS class
+* }
  * */
 
 export class Modal {
@@ -23,23 +25,21 @@ constructor(parent, titleText, CSSClassObject) {
         this.titleText = titleText;
         this.CSSClass = CSSClassObject;
         this.elements = {
-            modalWrapper: document.createElement('div'),
-            modal: document.createElement('div'),
-            crossButton: document.createElement('button'),
-            title: document.createElement('p'),
+            modalWrapper: new DOMElement(
+                "div",
+                CSSClassObject.modalWrapper).render(),
+            modal: new DOMElement(
+                "div",
+                CSSClassObject.modal).render(),
+            crossButton: new DOMElement(
+                "button",
+                CSSClassObject.crossButton).render(),
+            title: new DOMElement(
+                "p",
+                CSSClassObject.title).render()
         }
     }
-    /**
-     * addStyles() method
-     * adds css classes to the components of a modal window
-     * */
-    addStyles() {
-        const {modalWrapper, modal, crossButton, title} = this.elements
-        modalWrapper.classList.add(this.CSSClass.modalWrapper)
-        modal.classList.add(this.CSSClass.modal)
-        crossButton.classList.add(this.CSSClass.crossButton)
-        title.classList.add(this.CSSClass.title)
-    }
+
     /**
      * elementsAddTextContent() method
      * adds text content to the modal window title and the cross sign to the close button
@@ -55,23 +55,49 @@ constructor(parent, titleText, CSSClassObject) {
      * enables to close the modal window by clicking at the cross button or outside of the modal block
      * */
     closeModal() {
-        const {modalWrapper} = this.elements
+        const {modalWrapper, modal} = this.elements
         modalWrapper.addEventListener('click', (event) => {
             if (event.target.classList[0] === this.CSSClass.modalWrapper || event.target.classList[0] === this.CSSClass.crossButton) {
+                [...modal.children].forEach(item =>{
+                    if (item.tagName.toLowerCase() === "form"){
+                        item.remove()
+                    }
+                })
+                document.body.classList.remove("scroll-lock");
                 modalWrapper.remove()
+                modal.remove()
             }
         })
+    }
+
+    render(){
+        const {parent, titleText, CSSClass, elements} = this
+        const {modalWrapper, modal, crossButton, title} = elements;
+        document.body.classList.add("scroll-lock");
+        this.closeModal()
+        this.elementsAddTextContent()
+
+        parent.append(modalWrapper)
+        modalWrapper.append(modal)
+        modal.prepend(crossButton, title)
+
+        return {
+            modalWrapper,
+            modal,
+            crossButton,
+            title,
+        }
     }
 }
 
 export class ModalLogIn extends Modal {
-
     /**
      * render() method
      * renders the login modal window onto the page.
      * */
 
     render() {
+        let modalElements = super.render()
         const {parent, titleText, CSSClass, elements} = this
         const {modalWrapper, modal, crossButton, title} = elements
         elements.form = new Form();
@@ -110,7 +136,6 @@ export class ModalLogIn extends Modal {
 
         elements.submitButton = new DOMElement("button",  CSSClass.submitButton, "Войти", {type: "submit"}).render();
 
-        this.addStyles()
         this.closeModal()
         this.elementsAddTextContent()
 
@@ -121,10 +146,7 @@ export class ModalLogIn extends Modal {
         modal.prepend(crossButton, title, elements.form)
 
         return {
-            modalWrapper,
-            modal,
-            crossButton,
-            title,
+            ...modalElements,
             form: elements.form,
             submitButton: elements.submitButton,
             emailInput: elements.emailInput,
@@ -188,20 +210,6 @@ export class ModalLogIn extends Modal {
 export class ModalCreateVisit extends Modal {
 
     render() {
-        const {parent, titleText, CSSClass, elements} = this
-        const {modalWrapper, modal, crossButton, title} = this.elements
-        this.addStyles()
-        this.elementsAddTextContent()
-        parent.append(modalWrapper)
-        modalWrapper.append(modal)
-        modal.prepend(crossButton, title)
-
-        this.closeModal()
-        return {
-            modalWrapper,
-            modal,
-            crossButton,
-            title,
-        }
+        return super.render()
     }
 }

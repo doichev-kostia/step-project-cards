@@ -53,3 +53,31 @@
   }
 }
 
+.error-modal{
+  display: block;
+  text-align: center;
+
+  &__title{
+    text-align: center;
+    padding: .5em 0;
+  }
+
+  &__btn{
+    @include resetButtonStyles;
+    display: inline-block;
+    padding: .2em .3em;
+    width: 180px;
+    margin: 5px;
+    font-size: 18px;
+    color: #585f73;
+    border: 1px solid #585f73;
+    border-radius: 20px;
+    box-sizing: border-box;
+  }
+
+  &__btn--submit:hover{
+    color: #FFFFFF;
+    background-color: #d90000;
+  }
+}
+
